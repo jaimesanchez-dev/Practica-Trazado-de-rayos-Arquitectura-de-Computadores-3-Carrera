@@ -7,9 +7,28 @@ namespace render {
 
   class vector {
   public:
-    vector(double cx, double cy, double cz) : x{cx}, y{cy}, z{cz} {}
+    vector(double cx, double cy, double cz) : x{cx}, y{cy}, z{cz} { }
 
     [[nodiscard]] double magnitude() const;
+
+    [[nodiscard]] vector suma(
+        vector const & otro_vector) const;  // Para sumar 2 vectores (x11+x21, x12+x22, x13+x23)
+
+    [[nodiscard]] vector resta(
+        vector const & otro_vector) const;  // Para sumar 2 vectores (x11-x21, x12-x22, x13-x23)
+
+    [[nodiscard]] double producto(vector const & otro_vector) const;  // Producto (escalar)
+
+    [[nodiscard]] vector producto_vectorial(
+        vector const & otro_vector) const;  // Obtener vector perpendicular por ej
+
+    [[nodiscard]] vector normalizar() const;  // Normalizar el vector
+
+    [[nodiscard]] double getX() const { return x; }
+
+    [[nodiscard]] double getY() const { return y; }
+
+    [[nodiscard]] double getZ() const { return z; }
 
     //...
   private:
