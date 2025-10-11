@@ -1,9 +1,11 @@
 set(COMMON_SRC_FILES 
   "${CMAKE_SOURCE_DIR}/common/src/vector.cpp"
+  "${CMAKE_SOURCE_DIR}/common/src/rayo.cpp"
 )
 
 set(CURRENT_DIR_SRC_FILES 
   "${CMAKE_CURRENT_SOURCE_DIR}/test_vector.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_rayo.cpp"
 )
 
 add_unit_test_target(
