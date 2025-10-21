@@ -1,4 +1,5 @@
 #include "configuracion.hpp"
+#include "vector.hpp"
 #include <cctype>
 #include <fstream>
 #include <iostream>
@@ -125,8 +126,8 @@ namespace {
     }
   }
 
-  void parsear_vector(std::array<double, 3> & vec, std::istringstream & iss,
-                      std::string const & etiqueta, contexto_parseo const & ctx) {
+  void parsear_vector(render::vector & vec, std::istringstream & iss, std::string const & etiqueta,
+                      contexto_parseo const & ctx) {
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;

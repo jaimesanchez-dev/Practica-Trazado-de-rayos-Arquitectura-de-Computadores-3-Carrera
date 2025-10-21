@@ -1,4 +1,5 @@
 #include "configuracion.hpp"
+#include "vector.hpp"
 #include <cstdio>
 #include <fstream>
 #include <gtest/gtest.h>
@@ -28,7 +29,7 @@ TEST(ConfigTest, ValoresPorDefecto) {
   EXPECT_EQ(cfg.aspect_height, 9);
   EXPECT_EQ(cfg.image_width, 1'920);
   EXPECT_DOUBLE_EQ(cfg.gamma, 2.2);
-  EXPECT_DOUBLE_EQ(cfg.camera_position[2], -10.0);
+  EXPECT_DOUBLE_EQ(cfg.camera_position.getZ(), -10.0);
   EXPECT_DOUBLE_EQ(cfg.field_of_view, 90.0);
   EXPECT_EQ(cfg.samples_per_pixel, 20);
   EXPECT_EQ(cfg.max_depth, 5);
@@ -61,14 +62,14 @@ background_light_color: 0.9 0.8 0.7
   EXPECT_EQ(cfg.aspect_height, 3);
   EXPECT_EQ(cfg.image_width, 800);
   EXPECT_DOUBLE_EQ(cfg.gamma, 1.8);
-  EXPECT_DOUBLE_EQ(cfg.camera_position[0], 1.0);
+  EXPECT_DOUBLE_EQ(cfg.camera_position.getX(), 1.0);
   EXPECT_DOUBLE_EQ(cfg.field_of_view, 45.0);
   EXPECT_EQ(cfg.samples_per_pixel, 50);
   EXPECT_EQ(cfg.max_depth, 10);
   EXPECT_EQ(cfg.material_rng_seed, 99);
   EXPECT_EQ(cfg.ray_rng_seed, 42);
-  EXPECT_DOUBLE_EQ(cfg.background_dark_color[0], 0.1);
-  EXPECT_DOUBLE_EQ(cfg.background_light_color[2], 0.7);
+  EXPECT_DOUBLE_EQ(cfg.background_dark_color.getX(), 0.1);
+  EXPECT_DOUBLE_EQ(cfg.background_light_color.getZ(), 0.7);
 
   (void) std::remove(ruta.c_str());
 }

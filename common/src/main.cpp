@@ -1,4 +1,5 @@
 #include "cilindro.hpp"
+#include "configuracion.hpp"
 #include "esfera.hpp"
 #include "rayo.hpp"
 #include "vector.hpp"
@@ -8,7 +9,7 @@
 
 /*Hay que aññadir el resto de includes segun se vayan haciendo para las llamadas*/
 
-int leer_configuracion(std::string const & archivo_config) {
+static int leer_configuracion(std::string const & archivo_config) {
   std::ifstream archivo(archivo_config);
   if (!archivo.is_open()) {
     std::cerr << "Error al abrir el archivo de configuracion: " << archivo_config << "\n";
