@@ -15,6 +15,10 @@ namespace render {
   public:
     interseccion() = default;
 
+    /* Si le vamos a dar valores desde el principio, usamos este constructor */
+    interseccion(bool b_existe, double d_t, vector const & v_punto, vector const & v_normal)
+        : existe{b_existe}, t{d_t}, punto{v_punto}, normal{v_normal} { }
+
     [[nodiscard]] bool obtener_existe() const { return existe; }
 
     [[nodiscard]] double obtener_t() const { return t; }
