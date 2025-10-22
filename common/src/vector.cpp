@@ -34,6 +34,10 @@ namespace render {
     return {x / mag, y / mag, z / mag};
   }
 
+  vector vector::producto_constante(double escalar) const {
+    return {x * escalar, y * escalar, z * escalar};
+  }
+
   //...
 
 }  // namespace render

@@ -1,42 +1,33 @@
-#ifndef LECTOR_CONFIG_HPP
-#define LECTOR_CONFIG_HPP
+// lector_archivo_escena.hpp
+#ifndef LECTOR_ESCENA_HPP
+#define LECTOR_ESCENA_HPP
 
 #include "vector.hpp"
 #include <string>
+#include <vector>
 
-/*Estructura para almacenar los parámetros de la escena en un struct*/
+enum tipo_material { MATE, METAL, REFRACTIVO };
 
-struct mate {
-  std::string nombre;
-  double R;
-  double G;
-  double B;
-};
-
-struct metal {
-  std::string nombre;
-  double R;
-  double G;
-  double B;
-  double refraccion;
-};
-
-struct refractivo {
-  std::string nombre;
-  double refraccion;
-};
-
-struct datos_esfera {
+struct esfera {
   render::vector centro;
   double radio;
-  void const * material;
+  tipo_material tipo_mat;
+  render::vector reflectancia;
+  double difusion;
+  double indice_refraccion;
 };
 
-struct datos_cilindro {
+struct cilindro {
   render::vector centro;
   double radio;
   render::vector eje;
-  void const * material;
+  tipo_material tipo_mat;
+  render::vector reflectancia;
+  double difusion;
+  double indice_refraccion;
 };
+
+void leer_escena(std::string const & ruta, std::vector<esfera> & esferas_out,
+                 std::vector<cilindro> & cilindros_out);
 
 #endif
