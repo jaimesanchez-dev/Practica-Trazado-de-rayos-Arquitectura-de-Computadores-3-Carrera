@@ -24,9 +24,7 @@ namespace render {
 
     [[nodiscard]] vector normalizar() const;  // Normalizar el vector
 
-    [[nodiscard]] vector producto_escalar(double escalar) const {
-      return {x * escalar, y * escalar, z * escalar};
-    }
+    [[nodiscard]] vector producto_constante(double escalar) const;
 
     [[nodiscard]] double getX() const { return x; }
 
