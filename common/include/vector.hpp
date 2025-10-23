@@ -17,6 +17,8 @@ namespace render {
     [[nodiscard]] vector resta(
         vector const & otro_vector) const;  // Para sumar 2 vectores (x11-x21, x12-x22, x13-x23)
 
+    [[nodiscard]] vector producto_constante(double constante) const;
+
     [[nodiscard]] double producto(vector const & otro_vector) const;  // Producto (escalar)
 
     [[nodiscard]] vector producto_vectorial(
