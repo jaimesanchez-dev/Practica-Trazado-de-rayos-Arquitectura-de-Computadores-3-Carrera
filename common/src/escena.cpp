@@ -47,11 +47,11 @@ namespace render {
         /* Calculamos la normal */
         vector I     = r.posicion(t);
         vector resta = I.resta(e.obtener_centro());
-        vector n     = resta.producto_escalar(1.0 / e.obtener_radio());
+        vector n     = resta.producto_constante(1.0 / e.obtener_radio());
 
         /* Si es necesario, cambiamos el signo */
         if (r.obtener_direccion().producto(n) > 0.0) {
-          n = n.producto_escalar(-1.0);
+          n = n.producto_constante(-1.0);
         }
 
         punto_interseccion  = I;
@@ -82,12 +82,12 @@ namespace render {
         /* Normal del cilindro */
         vector resta1           = I.resta(C);
         double producto         = resta1.producto(a);
-        vector producto_escalar = a.producto_escalar(producto);
+        vector producto_escalar = a.producto_constante(producto);
         vector n                = resta1.resta(producto_escalar);
 
         /* Si es necesario, cambiamos el signo */
         if (r.obtener_direccion().producto(n) > 0.0) {
-          n = n.producto_escalar(-1.0);
+          n = n.producto_constante(-1.0);
         }
 
         punto_interseccion  = I;
