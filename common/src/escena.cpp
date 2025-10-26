@@ -50,7 +50,7 @@ namespace render {
         vector n     = resta.producto_constante(1.0 / e.obtener_radio());
 
         /* Si es necesario, cambiamos el signo */
-        if (r.obtener_direccion().producto(n) > 0.0) {
+        if (r.obtener_direccion().producto_escalar(n) > 0.0) {
           n = n.producto_constante(-1.0);
         }
 
@@ -81,12 +81,12 @@ namespace render {
 
         /* Normal del cilindro */
         vector resta1           = I.resta(C);
-        double producto         = resta1.producto(a);
+        double producto         = resta1.producto_escalar(a);
         vector producto_escalar = a.producto_constante(producto);
         vector n                = resta1.resta(producto_escalar);
 
         /* Si es necesario, cambiamos el signo */
-        if (r.obtener_direccion().producto(n) > 0.0) {
+        if (r.obtener_direccion().producto_escalar(n) > 0.0) {
           n = n.producto_constante(-1.0);
         }
 
