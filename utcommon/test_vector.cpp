@@ -33,7 +33,7 @@ TEST(test_vector, resta) {
 TEST(test_vector, producto) {
   render::vector vec1{1.0, 2.0, 3.0};
   render::vector vec2{4.0, 5.0, 6.0};
-  double result = vec1.producto(vec2);
+  double result = vec1.producto_escalar(vec2);
   EXPECT_EQ(result, 32.0);
 }
 

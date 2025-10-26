@@ -17,7 +17,7 @@ namespace render {
     [[nodiscard]] vector resta(
         vector const & otro_vector) const;  // Para sumar 2 vectores (x11-x21, x12-x22, x13-x23)
 
-    [[nodiscard]] double producto(vector const & otro_vector) const;  // Producto
+    [[nodiscard]] double producto_escalar(vector const & otro_vector) const;  // Producto
 
     [[nodiscard]] vector producto_vectorial(
         vector const & otro_vector) const;  // Obtener vector perpendicular por ej

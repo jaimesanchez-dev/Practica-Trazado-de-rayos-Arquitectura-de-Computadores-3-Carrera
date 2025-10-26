@@ -32,14 +32,14 @@ namespace render {
     /*Interseccion con la parte curva*/
     vector r_c = r_origen.resta(c_base);
     /*Calculo de las perpendiculares*/
-    double r_c_a             = r_c.producto(c_eje);
+    double r_c_a             = r_c.producto_escalar(c_eje);
     vector r_c_perpendicular = r_c.resta(c_eje.producto_constante(r_c_a));
-    double d_a               = r_direccion.producto(c_eje);
+    double d_a               = r_direccion.producto_escalar(c_eje);
     vector d_perpendicular   = r_direccion.resta(c_eje.producto_constante(d_a));
     /*Parametros para la ec de segundo grado*/
-    double a_curva = d_perpendicular.producto(d_perpendicular);
-    double b_curva = 2 * d_perpendicular.producto(r_c_perpendicular);
-    double c_curva = r_c_perpendicular.producto(r_c_perpendicular) - (c_radio * c_radio);
+    double a_curva = d_perpendicular.producto_escalar(d_perpendicular);
+    double b_curva = 2 * d_perpendicular.producto_escalar(r_c_perpendicular);
+    double c_curva = r_c_perpendicular.producto_escalar(r_c_perpendicular) - (c_radio * c_radio);
     double discriminante_curva = (b_curva * b_curva) - (4 * a_curva * c_curva);
     if (discriminante_curva >= 0) {
       double discriminante_raiz = std::sqrt(discriminante_curva);
@@ -48,14 +48,14 @@ namespace render {
       if (lambda1 > 1e-6)
       { /* Comprobamos si las soluciones están dentro de la altura del cilindro */
         vector punto_interseccion = r_origen.suma(r_direccion.producto_constante(lambda1));
-        double altura_punto       = punto_interseccion.resta(c_base).producto(c_eje);
+        double altura_punto       = punto_interseccion.resta(c_base).producto_escalar(c_eje);
         if (altura_punto >= 0.0 and altura_punto <= c_altura) {
           t_temp = std::min(t_temp, lambda1);
         }
       }
       if (lambda2 > 1e-6) {
         vector punto_interseccion = r_origen.suma(r_direccion.producto_constante(lambda2));
-        double altura_punto       = punto_interseccion.resta(c_base).producto(c_eje);
+        double altura_punto       = punto_interseccion.resta(c_base).producto_escalar(c_eje);
         if (altura_punto >= 0.0 and altura_punto <= c_altura) {
           t_temp = std::min(t_temp, lambda2);
         }
@@ -76,10 +76,10 @@ namespace render {
     double c_altura = obtener_altura();
 
     vector punto_sup = c_base.suma(c_eje.producto_constante(c_altura / 2.0));  // base arriba
-    double denom_sup = r_direccion.producto(c_eje);
+    double denom_sup = r_direccion.producto_escalar(c_eje);
 
     if (std::abs(denom_sup) > 1e-8) {
-      double lambda = punto_sup.resta(r_origen).producto(c_eje) / denom_sup;
+      double lambda = punto_sup.resta(r_origen).producto_escalar(c_eje) / denom_sup;
 
       if (lambda > 1e-6 and lambda < t_temp) {
         vector I = r_origen.suma(r_direccion.producto_constante(lambda));
@@ -105,11 +105,11 @@ namespace render {
     double c_altura = obtener_altura();
 
     vector punto_inf = c_base.resta(c_eje.producto_constante(c_altura / 2.0));  // base abajo
-    double denom_inf = r_direccion.producto(c_eje.producto_constante(-1.0));
+    double denom_inf = r_direccion.producto_escalar(c_eje.producto_constante(-1.0));
 
     if (std::abs(denom_inf) > 1e-8) {
       double lambda =
-          punto_inf.resta(r_origen).producto(c_eje.producto_constante(-1.0)) / denom_inf;
+          punto_inf.resta(r_origen).producto_escalar(c_eje.producto_constante(-1.0)) / denom_inf;
 
       if (lambda > 1e-6 and lambda < t_temp) {
         vector I = r_origen.suma(r_direccion.producto_constante(lambda));

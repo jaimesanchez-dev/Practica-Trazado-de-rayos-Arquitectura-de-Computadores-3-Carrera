@@ -15,10 +15,10 @@ namespace render {
     vector r_c = e_centro.resta(r_origen);
 
     /* Calculamos los parámetros necesarios para la ecuación de segundo grado */
-    double a        = r_direccion.producto(r_direccion);
-    double producto = r_direccion.producto(r_c);
+    double a        = r_direccion.producto_escalar(r_direccion);
+    double producto = r_direccion.producto_escalar(r_c);
     double b        = -2 * producto;
-    double c        = r_c.producto(r_c) - pow(e_radio, 2);
+    double c        = r_c.producto_escalar(r_c) - pow(e_radio, 2);
 
     /* Calculamos el valor del discriminante */
     double discriminante = pow(b, 2) - 4 * a * c;
