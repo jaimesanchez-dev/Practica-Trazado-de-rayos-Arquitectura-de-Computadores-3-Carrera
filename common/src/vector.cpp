@@ -16,6 +16,10 @@ namespace render {
     return {x - otro_vector.x, y - otro_vector.y, z - otro_vector.z};
   }
 
+  vector vector::producto_constante(double constante) const {
+    return {x * constante, y * constante, z * constante};
+  }
+
   double vector::producto(vector const & otro_vector) const {
     return x * otro_vector.x + y * otro_vector.y + z * otro_vector.z;
   }
