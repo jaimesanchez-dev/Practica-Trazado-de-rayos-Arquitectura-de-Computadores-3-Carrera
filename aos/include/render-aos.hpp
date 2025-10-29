@@ -1,31 +1,32 @@
-#ifndef RENDER_AOS_HPP
-#define RENDER_AOS_HPP
+#ifndef RENDER_IMAGEN_AOS_HPP
+#define RENDER_IMAGEN_AOS_HPP
 
-#include "escena.hpp"
+#include "color.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>
 
 namespace render {
 
-  struct Pixel {
+  struct pixel_aos {
     uint8_t r, g, b;
 
-    Pixel(uint8_t r = 0, uint8_t g = 0, uint8_t b = 0) : r(r), g(g), b(b) { }
+    pixel_aos(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0) : r{red}, g{green}, b{blue} { }
+
+    explicit pixel_aos(color const & c) : r{c.mapear_r()}, g{c.mapear_g()}, b{c.mapear_b()} { }
   };
 
-  class RenderAOS {
+  class imagen_aos {
   private:
-    std::vector<Pixel> pixeles;
+    std::vector<pixel_aos> pixeles;
     int ancho, alto;
 
   public:
-    // ✅ DECLARACIÓN del constructor
-    RenderAOS(int ancho, int alto);
+    imagen_aos(int w, int h);
 
-    // ✅ DECLARACIÓN de los métodos
-    void renderizar(escena const & escena);
-    void guardarPPM(std::string const & nombre_archivo) const;
+    void establecer_pixel(int x, int y, color const & c);
+
+    void guardar_ppm(std::string const & archivo) const;
 
     [[nodiscard]] int obtener_ancho() const { return ancho; }
 
