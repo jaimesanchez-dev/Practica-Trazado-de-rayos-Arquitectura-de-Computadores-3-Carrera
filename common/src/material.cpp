@@ -58,72 +58,63 @@ namespace render {
   vector material_refractivo::calcular_direccion_reflexion(vector const & dir_incidente,
                                                            vector const & normal,
                                                            mersenne_twister &) const {
-    /* Normalizamos */
-    vector d = dir_incidente.normalizar();
-    vector n = normal.normalizar();
-
-    /* Determinar si el rayo viene desde afuera o desde adentro */
-    double cos_theta = std::min(-d.producto_escalar(n), 1.0);
+    /* Calculamos el coseno */
+    double cos_theta = std::min(-dir_incidente.producto_escalar(normal), 1.0);
     cos_theta        = std::max(cos_theta, 0.0);
 
-    bool direccion_hacia_afuera = d.producto_escalar(n) > 0.0;
+    /* Nos aseguramos de si apunta hacia afuera o hacia dentro */
+    bool direccion_hacia_afuera = dir_incidente.producto_escalar(normal) > 0.0;
 
-    /* Corregimos el índice de refracción */
+    /* Índice de refracción corregido */
     double rho_prima = direccion_hacia_afuera ? indice_refraccion : (1.0 / indice_refraccion);
 
     /* Calculamos el seno */
     double sin_theta = std::sqrt(std::max(0.0, 1.0 - cos_theta * cos_theta));
 
-    /* Comprobamos si la multiplicación es > 1 */
+    /* Comprobamos */
     double lhs = rho_prima * sin_theta;
     if (lhs > 1.0 - 1e-12) {
-      double producto = d.producto_escalar(n);
-      return d.resta(n.producto_constante(2.0 * producto)).normalizar();
+      double producto = dir_incidente.producto_escalar(normal);
+      return dir_incidente.resta(normal.producto_constante(2.0 * producto));
     }
 
-    /* Calculamos el vector u */
-    vector u = d.suma(n.producto_constante(cos_theta)).producto_constante(rho_prima);
+    /* Caso de refracción, calculamos u y v */
+    vector u =
+        dir_incidente.suma(normal.producto_constante(cos_theta)).producto_constante(rho_prima);
 
-    /* Calculamos el vector v */
     double u_norm_sq = u.producto_escalar(u);
     double inside    = 1.0 - u_norm_sq;
     inside           = std::max(inside, 0.0);
-    double factor_v  = -std::sqrt(inside);
-    vector v         = n.producto_constante(factor_v);
 
-    /* Vector dr */
+    double factor_v = -std::sqrt(inside);
+    vector v        = normal.producto_constante(factor_v);
+
+    /* Calculamos dr */
     vector dr = u.suma(v);
 
-    return dr.normalizar();
+    return dr;
   }
 
   bool material_refractivo::calcular_refraccion(vector const & dir_incidente, vector const & normal,
                                                 bool hacia_afuera, vector & dir_refractada) const {
-    /* Calcular el índice de refracción relativo */
     double ratio = hacia_afuera ? (1.0 / indice_refraccion) : indice_refraccion;
 
-    vector dir_norm                = dir_incidente.normalizar();
+    vector dir_norm                = dir_incidente;
     constexpr double MAX_COS_THETA = 1.0;
+    double cos_theta               = std::min(-dir_norm.producto_escalar(normal), MAX_COS_THETA);
+    double sin_theta               = std::sqrt(1.0 - cos_theta * cos_theta);
 
-    /* Calculamos seno y coseno */
-    double cos_theta = std::min(-dir_norm.producto_escalar(normal), MAX_COS_THETA);
-    double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
-
-    /* Comprobar si se produce reflexión total interna */
     constexpr double CRITICAL_ANGLE = 1.0;
     if (ratio * sin_theta > CRITICAL_ANGLE) {
       return false;
     }
 
-    /* Calcular la componente perpendicular del rayo refractado */
     vector perpendicular = dir_norm.suma(normal.producto_constante(cos_theta));
     perpendicular        = perpendicular.producto_constante(ratio);
 
-    /* Calcular la componente paralela al vector normal */
     double cos_theta_prima = std::sqrt(1.0 - perpendicular.producto_escalar(perpendicular));
     vector paralelo        = normal.producto_constante(-cos_theta_prima);
 
-    /* Sumar las dos componentes para obtener la dirección refractada */
     dir_refractada = perpendicular.suma(paralelo);
     return true;
   }
