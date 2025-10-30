@@ -1,0 +1,38 @@
+#include "imagen_aos.hpp"
+#include <fstream>
+#include <stdexcept>
+
+namespace render {
+
+  imagen_aos::imagen_aos(int w, int h) : ancho{w}, alto{h} {
+    if (w <= 0 || h <= 0) {
+      throw std::invalid_argument("Dimensiones de imagen invÃ¡lidas");
+    }
+    pixeles.resize(static_cast<size_t>(w * h));
+  }
+
+  void imagen_aos::establecer_pixel(int x, int y, color const & c) {
+    if (x < 0 || x >= ancho || y < 0 || y >= alto) {
+      return;
+    }
+    int indice                           = y * ancho + x;
+    pixeles[static_cast<size_t>(indice)] = pixel_aos(c);
+  }
+
+  void imagen_aos::guardar_ppm(std::string const & archivo) const {
+    std::ofstream salida(archivo);
+    if (!salida.is_open()) {
+      throw std::runtime_error("No se pudo crear el archivo: " + archivo);
+    }
+
+    salida << "P3\n";
+    salida << ancho << " " << alto << "\n";
+    salida << "255\n";
+
+    for (auto const & pixel : pixeles) {
+      salida << static_cast<int>(pixel.r) << " " << static_cast<int>(pixel.g) << " "
+             << static_cast<int>(pixel.b) << "\n";
+    }
+  }
+
+}  // namespace render
