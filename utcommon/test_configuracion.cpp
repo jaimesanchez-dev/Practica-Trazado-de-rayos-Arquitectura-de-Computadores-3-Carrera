@@ -22,8 +22,8 @@ namespace {
 // -------------------------------------------------------------
 
 TEST(ConfigTest, ValoresPorDefecto) {
-  auto const ruta   = crear_archivo_temp("");
-  Configuracion cfg = leer_configuracion(ruta);
+  auto const ruta         = crear_archivo_temp("");
+  Configuracion const cfg = leer_configuracion(ruta);
 
   EXPECT_EQ(cfg.aspect_width, 16);
   EXPECT_EQ(cfg.aspect_height, 9);
@@ -56,7 +56,7 @@ background_dark_color: 0.1 0.2 0.3
 background_light_color: 0.9 0.8 0.7
 )";
   auto const ruta             = crear_archivo_temp(contenido);
-  Configuracion cfg           = leer_configuracion(ruta);
+  Configuracion const cfg     = leer_configuracion(ruta);
 
   EXPECT_EQ(cfg.aspect_width, 4);
   EXPECT_EQ(cfg.aspect_height, 3);
@@ -83,7 +83,7 @@ TEST(ConfigTest, LineasVaciasYEspacios) {
    
 )";
   auto const ruta             = crear_archivo_temp(contenido);
-  Configuracion cfg           = leer_configuracion(ruta);
+  Configuracion const cfg     = leer_configuracion(ruta);
 
   EXPECT_EQ(cfg.image_width, 1'024);
   EXPECT_DOUBLE_EQ(cfg.gamma, 2.0);

@@ -2,16 +2,17 @@
 #include "vector.hpp"
 #include <cmath>
 #include <gtest/gtest.h>
+#include <numbers>
 
 using namespace render;
 
 TEST(GeometriaTest, InicializacionBasica) {
-  vector pov(0.0, 0.0, 0.0);
-  vector destino(0.0, 0.0, -1.0);
-  vector norte(0.0, 1.0, 0.0);
-  double fov_grados = 90.0;
+  vector const pov(0.0, 0.0, 0.0);
+  vector const destino(0.0, 0.0, -1.0);
+  vector const norte(0.0, 1.0, 0.0);
+  double const fov_grados = 90.0;
 
-  geometria g(pov, destino, norte, fov_grados);
+  geometria const g(pov, destino, norte, fov_grados);
 
   auto gPOV   = g.obtener_POV();
   auto gDEST  = g.obtener_DESTINO();
@@ -29,31 +30,31 @@ TEST(GeometriaTest, InicializacionBasica) {
   EXPECT_DOUBLE_EQ(gNORTE.getY(), 1.0);
   EXPECT_DOUBLE_EQ(gNORTE.getZ(), 0.0);
 
-  EXPECT_NEAR(g.obtener_FOV(), M_PI / 2.0, 1e-9);
+  EXPECT_NEAR(g.obtener_FOV(), std::numbers::pi / 2.0, 1e-9);
 }
 
 TEST(GeometriaTest, FOVConversionRadianes) {
-  vector pov(0.0, 0.0, 0.0);
-  vector destino(0.0, 0.0, -1.0);
-  vector norte(0.0, 1.0, 0.0);
+  vector const pov(0.0, 0.0, 0.0);
+  vector const destino(0.0, 0.0, -1.0);
+  vector const norte(0.0, 1.0, 0.0);
 
-  geometria g1(pov, destino, norte, 0.0);
+  geometria const g1(pov, destino, norte, 0.0);
   EXPECT_NEAR(g1.obtener_FOV(), 0.0, 1e-9);
 
-  geometria g2(pov, destino, norte, 180.0);
-  EXPECT_NEAR(g2.obtener_FOV(), M_PI, 1e-9);
+  geometria const g2(pov, destino, norte, 180.0);
+  EXPECT_NEAR(g2.obtener_FOV(), std::numbers::pi, 1e-9);
 
-  geometria g3(pov, destino, norte, 45.0);
-  EXPECT_NEAR(g3.obtener_FOV(), M_PI / 4.0, 1e-9);
+  geometria const g3(pov, destino, norte, 45.0);
+  EXPECT_NEAR(g3.obtener_FOV(), std::numbers::pi / 4.0, 1e-9);
 }
 
 TEST(GeometriaTest, AsignacionVectores) {
-  vector pov(1.0, 2.0, 3.0);
-  vector destino(4.0, 5.0, 6.0);
-  vector norte(0.0, 1.0, 0.0);
-  double fov_grados = 60.0;
+  vector const pov(1.0, 2.0, 3.0);
+  vector const destino(4.0, 5.0, 6.0);
+  vector const norte(0.0, 1.0, 0.0);
+  double const fov_grados = 60.0;
 
-  geometria g(pov, destino, norte, fov_grados);
+  geometria const g(pov, destino, norte, fov_grados);
 
   auto gPOV   = g.obtener_POV();
   auto gDEST  = g.obtener_DESTINO();
@@ -71,16 +72,16 @@ TEST(GeometriaTest, AsignacionVectores) {
   EXPECT_DOUBLE_EQ(gNORTE.getY(), 1.0);
   EXPECT_DOUBLE_EQ(gNORTE.getZ(), 0.0);
 
-  EXPECT_NEAR(g.obtener_FOV(), M_PI / 3.0, 1e-9);
+  EXPECT_NEAR(g.obtener_FOV(), std::numbers::pi / 3.0, 1e-9);
 }
 
 TEST(GeometriaTest, CamposIndependientes) {
   vector pov(0.0, 0.0, 0.0);
   vector destino(1.0, 0.0, 0.0);
   vector norte(0.0, 1.0, 0.0);
-  double fov = 90.0;
+  double const fov = 90.0;
 
-  geometria g(pov, destino, norte, fov);
+  geometria const g(pov, destino, norte, fov);
 
   // Modificamos los vectores originales
   pov     = vector(99.0, 0.0, 0.0);

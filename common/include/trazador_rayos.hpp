@@ -4,7 +4,6 @@
 #include "color.hpp"
 #include "configuracion.hpp"
 #include "escena.hpp"
-#include "lector_archivo_escena.hpp"
 #include "material.hpp"
 #include "mersenne_twister.hpp"
 #include "rayo.hpp"

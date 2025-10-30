@@ -6,15 +6,15 @@ using namespace render;
 
 // Test 1: Comprobar que el constructor con semilla produce siempre la misma secuencia
 TEST(MersenneTwisterTest, ReproducibilidadConSemilla) {
-  unsigned int seed = 1'234;
+  unsigned int const seed = 1'234;
 
   mersenne_twister mt1(seed);
   mersenne_twister mt2(seed);
 
   // Deben generar exactamente la misma secuencia
   for (int i = 0; i < 5; ++i) {
-    double n1 = mt1.siguiente_numero();
-    double n2 = mt2.siguiente_numero();
+    double const n1 = mt1.siguiente_numero();
+    double const n2 = mt2.siguiente_numero();
     EXPECT_DOUBLE_EQ(n1, n2);
   }
 }
@@ -24,7 +24,7 @@ TEST(MersenneTwisterTest, ValoresEnRango) {
   mersenne_twister mt(42);
 
   for (int i = 0; i < 1'000; ++i) {
-    double val = mt.siguiente_numero();
+    double const val = mt.siguiente_numero();
     EXPECT_GE(val, -0.5);
     EXPECT_LE(val, 0.5);
   }
@@ -57,7 +57,7 @@ TEST(MersenneTwisterTest, MediaCercanaACero) {
     suma += mt.siguiente_numero();
   }
 
-  double media = suma / N;
+  double const media = suma / N;
 
   // La media debería estar cerca de 0 (dentro de ±0.01)
   EXPECT_NEAR(media, 0.0, 0.01);
