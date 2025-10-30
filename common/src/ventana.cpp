@@ -1,5 +1,8 @@
 #include "ventana.hpp"
+#include "geometria.hpp"
+#include "mersenne_twister.hpp"
 #include "rayo.hpp"
+#include "tamaño_ventana.hpp"
 #include <cmath>
 
 namespace render {
@@ -35,9 +38,9 @@ namespace render {
   }
 
   void ventana::calcular_v_direccion() {
-    vector v_director_x = this->geo.NORTE.producto_vectorial(v_focal_normalizado);
-    this->v_direccion_x = v_director_x.normalizar();
-    this->v_direccion_y = v_focal_normalizado.producto_vectorial(v_direccion_x);
+    vector const v_director_x = this->geo.NORTE.producto_vectorial(v_focal_normalizado);
+    this->v_direccion_x       = v_director_x.normalizar();
+    this->v_direccion_y       = v_focal_normalizado.producto_vectorial(v_direccion_x);
   }
 
   void ventana::calcular_marco_ventana() {
@@ -52,29 +55,29 @@ namespace render {
   }
 
   void ventana::calcular_origen_ventana() {
-    vector centro_focal  = this->geo.POV.resta(this->v_focal);
-    vector esquina       = (this->v_marco_x.suma(this->v_marco_y)).producto_constante(0.5);
-    vector centrar       = (this->delta_x.suma(this->delta_y)).producto_constante(0.5);
-    this->origen_ventana = centro_focal.resta(esquina).suma(centrar);
+    vector const centro_focal = this->geo.POV.resta(this->v_focal);
+    vector const esquina      = (this->v_marco_x.suma(this->v_marco_y)).producto_constante(0.5);
+    vector const centrar      = (this->delta_x.suma(this->delta_y)).producto_constante(0.5);
+    this->origen_ventana      = centro_focal.resta(esquina).suma(centrar);
   }
 
   vector ventana::calcular_coordenadas_dispersas(int pixel_x, int pixel_y) {
-    vector desplazamiento_x =
+    vector const desplazamiento_x =
         this->delta_x.producto_constante(pixel_x + this->mt.siguiente_numero());
-    vector desplazamiento_y =
+    vector const desplazamiento_y =
         this->delta_y.producto_constante(pixel_y + this->mt.siguiente_numero());
-    vector desplazamiento_pixel = desplazamiento_x.suma(desplazamiento_y);
-    vector interseccion_ventana = this->origen_ventana.suma(desplazamiento_pixel);
-    vector dirección_dispersa   = interseccion_ventana.resta(
-        this->geo.POV);       // Se resta para calcular la direccion desde el punto de vista POV y
-                                // no desde el origen (0,0,0)
-    return dirección_dispersa;  // Este vector representa la direccion que tomará el rayo generado
-                                // con origen en POV y pasando por el pixel (pixel_x, pixel_y) con
-                                // dispersion
+    vector const desplazamiento_pixel = desplazamiento_x.suma(desplazamiento_y);
+    vector const interseccion_ventana = this->origen_ventana.suma(desplazamiento_pixel);
+    vector dirección_dispersa         = interseccion_ventana.resta(
+        this->geo.POV);  // Se resta para calcular la direccion desde el punto de vista POV y
+                                 // no desde el origen (0,0,0)
+    return dirección_dispersa;   // Este vector representa la direccion que tomará el rayo generado
+                                 // con origen en POV y pasando por el pixel (pixel_x, pixel_y) con
+                                 // dispersion
   }
 
   rayo ventana::generar_rayos_pixel(int pixel_x, int pixel_y) {
-    vector direccion = calcular_coordenadas_dispersas(pixel_x, pixel_y);
+    vector const direccion = calcular_coordenadas_dispersas(pixel_x, pixel_y);
     rayo rayo_generado(this->geo.POV, direccion.normalizar());
     return rayo_generado;
   }

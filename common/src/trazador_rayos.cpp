@@ -1,6 +1,19 @@
 #include "trazador_rayos.hpp"
-#include <algorithm>
+#include "cilindro.hpp"
+#include "color.hpp"
+#include "configuracion.hpp"
+#include "esfera.hpp"
+#include "interseccion.hpp"
+#include "lector_archivo_escena.hpp"
+#include "material.hpp"
+#include "mersenne_twister.hpp"
+#include "rayo.hpp"
+#include "vector.hpp"
 #include <cmath>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace render {
 
@@ -8,11 +21,11 @@ namespace render {
       : config{cfg}, mt_materiales{mt} { }
 
   color trazador_rayos::calcular_color_fondo(vector const & direccion) const {
-    vector dir_norm = direccion.normalizar();
-    double t        = (dir_norm.getY() + 1.0) * 0.5;
+    vector const dir_norm = direccion.normalizar();
+    double const t        = (dir_norm.getY() + 1.0) * 0.5;
 
-    color claro(config.background_light_color);
-    color oscuro(config.background_dark_color);
+    color const claro(config.background_light_color);
+    color const oscuro(config.background_dark_color);
 
     return claro.escalar(1.0 - t).suma(oscuro.escalar(t));
   }
@@ -25,10 +38,10 @@ namespace render {
 
     // Convertir de estructuras de lectura a clases render
     for (auto const & esf : esferas_temp) {
-      render::esfera esfera_render(esf.centro, esf.radio);
+      render::esfera const esfera_render(esf.centro, esf.radio);
       scn.agregar_esfera(esfera_render);
 
-      std::string nombre_mat = "mat_esf_" + std::to_string(material_esferas.size());
+      std::string const nombre_mat = "mat_esf_" + std::to_string(material_esferas.size());
       material_esferas.push_back(nombre_mat);
 
       if (esf.tipo_mat == ::MATE) {
@@ -41,10 +54,10 @@ namespace render {
     }
 
     for (auto const & cil : cilindros_temp) {
-      render::cilindro cilindro_render(cil.centro, cil.eje, cil.radio);
+      render::cilindro const cilindro_render(cil.centro, cil.eje, cil.radio);
       scn.agregar_cilindro(cilindro_render);
 
-      std::string nombre_mat = "mat_cil_" + std::to_string(material_cilindros.size());
+      std::string const nombre_mat = "mat_cil_" + std::to_string(material_cilindros.size());
       material_cilindros.push_back(nombre_mat);
 
       if (cil.tipo_mat == ::MATE) {
@@ -62,7 +75,7 @@ namespace render {
       return {0.0, 0.0, 0.0};
     }
 
-    interseccion inter = scn.interseccion_mas_cercana(r);
+    interseccion const inter = scn.interseccion_mas_cercana(r);
 
     if (!inter.obtener_existe()) {
       return calcular_color_fondo(r.obtener_direccion());
@@ -77,7 +90,7 @@ namespace render {
     constexpr double EPSILON = 1e-6;
     for (size_t i = 0; i < esferas.size(); ++i) {
       double t_temp = 0.0;
-      if (esferas[i].interseccion(r, t_temp) && std::abs(t_temp - inter.obtener_t()) < EPSILON) {
+      if (esferas[i].interseccion(r, t_temp) and std::abs(t_temp - inter.obtener_t()) < EPSILON) {
         if (i < material_esferas.size()) {
           mat = materiales[material_esferas[i]];
         }
@@ -88,7 +101,7 @@ namespace render {
     if (!mat) {
       for (size_t i = 0; i < cilindros.size(); ++i) {
         double t_temp = 0.0;
-        if (cilindros[i].interseccion(r, t_temp) && std::abs(t_temp - inter.obtener_t()) < EPSILON)
+        if (cilindros[i].interseccion(r, t_temp) and std::abs(t_temp - inter.obtener_t()) < EPSILON)
         {
           if (i < material_cilindros.size()) {
             mat = materiales[material_cilindros[i]];
@@ -111,14 +124,14 @@ namespace render {
       auto mat_refractivo = std::dynamic_pointer_cast<material_refractivo>(mat);
 
       // La normal de intersección ya apunta hacia afuera del objeto
-      vector normal = inter.obtener_normal();
+      vector const normal = inter.obtener_normal();
 
       // El método calcular_direccion_reflexion YA maneja todo:
       // - Determina si entra o sale
       // - Calcula reflexión total interna si aplica
       // - Calcula refracción si no hay reflexión total
-      vector dir_resultado = mat_refractivo->calcular_direccion_reflexion(r.obtener_direccion(),
-                                                                          normal, mt_materiales);
+      vector const dir_resultado = mat_refractivo->calcular_direccion_reflexion(
+          r.obtener_direccion(), normal, mt_materiales);
 
       // CLAVE: Aplicar offset basándose en la dirección RESULTANTE
       constexpr double OFFSET = 1e-4;
@@ -133,7 +146,7 @@ namespace render {
         punto_origen = inter.obtener_punto().resta(normal.producto_constante(OFFSET));
       }
 
-      rayo nuevo_rayo(punto_origen, dir_resultado);
+      rayo const nuevo_rayo(punto_origen, dir_resultado);
 
       // Según el PDF (sección 3.5.3), la reflectancia de materiales refractivos es (1,1,1)
       color color_resultado = trazar_rayo(nuevo_rayo, profundidad - 1);
@@ -141,19 +154,19 @@ namespace render {
     }
 
     // Para materiales no refractivos (mate y metal)
-    vector nueva_dir = mat->calcular_direccion_reflexion(r.obtener_direccion(),
-                                                         inter.obtener_normal(), mt_materiales);
+    vector const nueva_dir = mat->calcular_direccion_reflexion(
+        r.obtener_direccion(), inter.obtener_normal(), mt_materiales);
 
     // Crear nuevo rayo con pequeño offset para evitar auto-intersección
     constexpr double OFFSET = 1e-3;
-    rayo rayo_reflejado(
+    rayo const rayo_reflejado(
         inter.obtener_punto().suma(inter.obtener_normal().producto_constante(OFFSET)), nueva_dir);
 
     // Trazar recursivamente
-    color color_reflejado = trazar_rayo(rayo_reflejado, profundidad - 1);
+    color const color_reflejado = trazar_rayo(rayo_reflejado, profundidad - 1);
 
     // Aplicar reflectancia del material
-    vector refl = mat->obtener_reflectancia();
+    vector const refl = mat->obtener_reflectancia();
     return color_reflejado.multiplicar(color(refl));
   }
 

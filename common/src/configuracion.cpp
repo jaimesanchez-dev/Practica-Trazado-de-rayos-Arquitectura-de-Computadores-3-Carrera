@@ -1,6 +1,7 @@
 #include "configuracion.hpp"
 #include "vector.hpp"
 #include <cctype>
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -16,8 +17,8 @@ namespace {
 
   void trim(std::string & s) {
     // Elimina espacios en blanco al inicio y al final
-    size_t start = s.find_first_not_of(" \t\r\n");
-    size_t end   = s.find_last_not_of(" \t\r\n");
+    size_t const start = s.find_first_not_of(" \t\r\n");
+    size_t const end   = s.find_last_not_of(" \t\r\n");
     if (start == std::string::npos) {
       s.clear();
     } else {
@@ -292,8 +293,8 @@ Configuracion leer_configuracion(std::string const & ruta) {
       throw std::runtime_error("Error: Unknown configuration key: [" + etiqueta + "]");
     }
 
-    contexto_parseo ctx{linea, numero_linea}; /*he creado el struct para pasar parametros para que
-                                                 no haya problemas con el clan-tidy*/
+    contexto_parseo const ctx{linea, numero_linea}; /*he creado el struct para pasar parametros para
+                                                 que no haya problemas con el clan-tidy*/
 
     procesar_etiqueta(config, etiqueta, iss, ctx);
   }

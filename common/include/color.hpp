@@ -43,7 +43,7 @@ namespace render {
     [[nodiscard]] color escalar(double s) const { return {r * s, g * s, b * s}; }
 
     [[nodiscard]] color aplicar_gamma(double gamma) const {
-      double inv_gamma = 1.0 / gamma;
+      double const inv_gamma = 1.0 / gamma;
       return {std::pow(r, inv_gamma), std::pow(g, inv_gamma), std::pow(b, inv_gamma)};
     }
 

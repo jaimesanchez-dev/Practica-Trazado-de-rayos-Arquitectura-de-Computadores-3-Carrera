@@ -2,6 +2,7 @@
 #include "lector_archivo_escena.hpp"
 #include "vector.hpp"
 #include <cctype>
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -26,8 +27,8 @@ namespace {
   };
 
   void trim(std::string & s) {
-    size_t start = s.find_first_not_of(" \t\r\n");
-    size_t end   = s.find_last_not_of(" \t\r\n");
+    size_t const start = s.find_first_not_of(" \t\r\n");
+    size_t const end   = s.find_last_not_of(" \t\r\n");
     if (start == std::string::npos) {
       s.clear();
     } else {
@@ -185,8 +186,8 @@ namespace {
 
     validar_extra(iss, "sphere:", ctx);
 
-    esfera nueva_esfera{render::vector(cx, cy, cz), radio,         mat->tipo,
-                        mat->reflectancia,          mat->difusion, mat->indice_refraccion};
+    esfera const nueva_esfera{render::vector(cx, cy, cz), radio,         mat->tipo,
+                              mat->reflectancia,          mat->difusion, mat->indice_refraccion};
 
     esferas.push_back(nueva_esfera);
   }
@@ -228,7 +229,7 @@ namespace {
 
     validar_extra(iss, "cylinder:", ctx);
 
-    cilindro nuevo_cilindro{
+    cilindro const nuevo_cilindro{
       render::vector(cx, cy, cz), radio,         render::vector(ex, ey, ez), mat->tipo,
       mat->reflectancia,          mat->difusion, mat->indice_refraccion};
 
@@ -254,7 +255,7 @@ namespace {
     } else if (etiqueta == "cylinder:") {
       parsear_cilindro(*params.materiales, *params.cilindros, iss, ctx);
     } else {
-      std::string entidad = etiqueta.substr(0, etiqueta.length() - 1);
+      std::string const entidad = etiqueta.substr(0, etiqueta.length() - 1);
       throw std::runtime_error("Error: Unknown scene entity: " + entidad);
     }
   }
@@ -286,11 +287,11 @@ void leer_escena(std::string const & ruta, std::vector<esfera> & esferas_out,
     iss >> etiqueta;
 
     if (etiqueta.empty() or etiqueta.back() != ':') {
-      std::string entidad = etiqueta.empty() ? "" : etiqueta;
+      std::string const entidad = etiqueta.empty() ? "" : etiqueta;
       throw std::runtime_error("Error: Unknown scene entity: " + entidad);
     }
 
-    contexto_parseo ctx{linea, numero_linea};
+    contexto_parseo const ctx{linea, numero_linea};
     parametros_procesamiento params{&materiales, &esferas_out, &cilindros_out};
     procesar_etiqueta(params, etiqueta, iss, ctx);
   }

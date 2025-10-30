@@ -3,12 +3,16 @@
 #include "geometria.hpp"
 #include "imagen_soa.hpp"
 #include "mersenne_twister.hpp"
+#include "rayo.hpp"
 #include "tamaño_ventana.hpp"
 #include "trazador_rayos.hpp"
 #include "ventana.hpp"
+#include <cstddef>
+#include <exception>
 #include <iostream>
 #include <print>
 #include <span>
+#include <string>
 
 namespace {
 
@@ -16,12 +20,12 @@ namespace {
                          std::string const & archivo_escena, std::string const & archivo_salida) {
     render::imagen_soa imagen(config.image_width, alto_imagen);
 
-    render::geometria geo(config.camera_position, config.camera_target, config.camera_north,
-                          config.field_of_view);
+    render::geometria const geo(config.camera_position, config.camera_target, config.camera_north,
+                                config.field_of_view);
 
-    render::tamaño_imagen tam(config.image_width, alto_imagen);
+    render::tamaño_imagen const tam(config.image_width, alto_imagen);
 
-    render::mersenne_twister mt_rayos(static_cast<unsigned>(config.ray_rng_seed));
+    render::mersenne_twister const mt_rayos(static_cast<unsigned>(config.ray_rng_seed));
     render::mersenne_twister mt_materiales(static_cast<unsigned>(config.material_rng_seed));
 
     render::ventana vent(geo, tam, mt_rayos);
@@ -34,14 +38,14 @@ namespace {
         render::color pixel_color(0.0, 0.0, 0.0);
 
         for (int s = 0; s < config.samples_per_pixel; ++s) {
-          render::rayo r  = vent.generar_rayos_pixel(x, y);
-          render::color c = trazador.trazar_rayo(r, config.max_depth);
-          pixel_color     = pixel_color.suma(c);
+          render::rayo const r  = vent.generar_rayos_pixel(x, y);
+          render::color const c = trazador.trazar_rayo(r, config.max_depth);
+          pixel_color           = pixel_color.suma(c);
         }
 
-        double inv_samples = 1.0 / static_cast<double>(config.samples_per_pixel);
-        pixel_color        = pixel_color.escalar(inv_samples);
-        pixel_color        = pixel_color.aplicar_gamma(config.gamma);
+        double const inv_samples = 1.0 / static_cast<double>(config.samples_per_pixel);
+        pixel_color              = pixel_color.escalar(inv_samples);
+        pixel_color              = pixel_color.aplicar_gamma(config.gamma);
 
         imagen.establecer_pixel(x, y, pixel_color);
       }
@@ -54,7 +58,7 @@ namespace {
 }  // namespace
 
 int main(int argc, char * argv[]) {
-  std::span<char *> args(argv, static_cast<size_t>(argc));
+  std::span<char *> const args(argv, static_cast<size_t>(argc));
   if (argc != 4) {
     std::println("Error: Invalid number of arguments: {}", argc - 1);
     return 1;

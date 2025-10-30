@@ -26,7 +26,7 @@ namespace render {
   }
 
   vector vector::normalizar() const {
-    double mag = magnitude();  // Usamos el metodo magnitude()
+    double const mag = magnitude();  // Usamos el metodo magnitude()
     if (mag == 0.0) {
       // Por si es un vector nulo
       return {0.0, 0.0, 0.0};

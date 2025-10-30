@@ -1,4 +1,9 @@
 #include "escena.hpp"
+#include "cilindro.hpp"
+#include "esfera.hpp"
+#include "interseccion.hpp"
+#include "rayo.hpp"
+#include "vector.hpp"
 #include <cmath>
 #include <limits>
 
@@ -45,9 +50,9 @@ namespace render {
         t_min            = t;
 
         /* Calculamos la normal */
-        vector I     = r.posicion(t);
-        vector resta = I.resta(e.obtener_centro());
-        vector n     = resta.producto_constante(1.0 / e.obtener_radio());
+        vector const I     = r.posicion(t);
+        vector const resta = I.resta(e.obtener_centro());
+        vector n           = resta.producto_constante(1.0 / e.obtener_radio());
 
         /* Si es necesario, cambiamos el signo */
         if (r.obtener_direccion().producto_escalar(n) > 0.0) {
@@ -75,15 +80,15 @@ namespace render {
         hay_interseccion = true;
         t_min            = t;
 
-        vector I = r.posicion(t);
-        vector C = c.obtener_base();
-        vector a = c.obtener_eje();
+        vector const I = r.posicion(t);
+        vector const C = c.obtener_base();
+        vector const a = c.obtener_eje();
 
         /* Normal del cilindro */
-        vector resta1           = I.resta(C);
-        double producto         = resta1.producto_escalar(a);
-        vector producto_escalar = a.producto_constante(producto);
-        vector n                = resta1.resta(producto_escalar);
+        vector const resta1           = I.resta(C);
+        double const producto         = resta1.producto_escalar(a);
+        vector const producto_escalar = a.producto_constante(producto);
+        vector n                      = resta1.resta(producto_escalar);
 
         /* Si es necesario, cambiamos el signo */
         if (r.obtener_direccion().producto_escalar(n) > 0.0) {
