@@ -8,26 +8,12 @@
 #include "ventana.hpp"
 #include <iostream>
 #include <print>
+#include <span>
 
-int main(int argc, char * argv[]) {
-  if (argc != 4) {
-    std::println("Error: Invalid number of arguments: {}", argc - 1);
-    return 1;
-  }
+namespace {
 
-  std::string const archivo_config = argv[1];
-  std::string const archivo_escena = argv[2];
-  std::string const archivo_salida = argv[3];
-
-  try {
-    std::println("Starting SOA rendering");
-
-    Configuracion config = leer_configuracion(archivo_config);
-
-    int alto_imagen =
-        static_cast<int>(static_cast<double>(config.image_width * config.aspect_height) /
-                         static_cast<double>(config.aspect_width));
-
+  void renderizar_imagen(Configuracion const & config, int alto_imagen,
+                         std::string const & archivo_escena, std::string const & archivo_salida) {
     render::imagen_soa imagen(config.image_width, alto_imagen);
 
     render::geometria geo(config.camera_position, config.camera_target, config.camera_north,
@@ -63,6 +49,31 @@ int main(int argc, char * argv[]) {
 
     imagen.guardar_ppm(archivo_salida);
     std::println("Image generated: {}", archivo_salida);
+  }
+
+}  // namespace
+
+int main(int argc, char * argv[]) {
+  std::span<char *> args(argv, static_cast<size_t>(argc));
+  if (argc != 4) {
+    std::println("Error: Invalid number of arguments: {}", argc - 1);
+    return 1;
+  }
+
+  std::string const archivo_config = args[1];
+  std::string const archivo_escena = args[2];
+  std::string const archivo_salida = args[3];
+
+  try {
+    std::println("Starting SOA rendering");
+
+    Configuracion const config = leer_configuracion(archivo_config);
+
+    int const alto_imagen = static_cast<int>(static_cast<double>(config.image_width) *
+                                             static_cast<double>(config.aspect_height) /
+                                             static_cast<double>(config.aspect_width));
+
+    renderizar_imagen(config, alto_imagen, archivo_escena, archivo_salida);
 
   } catch (std::exception const & e) {
     std::cerr << e.what() << "\n";

@@ -5,14 +5,14 @@
 namespace render {
 
   imagen_aos::imagen_aos(int w, int h) : ancho{w}, alto{h} {
-    if (w <= 0 || h <= 0) {
+    if (w <= 0 or h <= 0) {
       throw std::invalid_argument("Dimensiones de imagen invÃ¡lidas");
     }
-    pixeles.resize(static_cast<size_t>(w * h));
+    pixeles.resize(static_cast<size_t>(w) * static_cast<size_t>(h));
   }
 
   void imagen_aos::establecer_pixel(int x, int y, color const & c) {
-    if (x < 0 || x >= ancho || y < 0 || y >= alto) {
+    if (x < 0 or x >= ancho or y < 0 or y >= alto) {
       return;
     }
     int indice                           = y * ancho + x;

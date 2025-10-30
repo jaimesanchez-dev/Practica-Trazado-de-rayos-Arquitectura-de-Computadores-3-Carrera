@@ -8,18 +8,12 @@
 #include "ventana.hpp"
 #include <iostream>
 #include <print>
+#include <span>
 
-int main(int argc, char * argv[]) {
-  if (argc != 4) {
-    std::println("Error: Invalid number of arguments: {}", argc - 1);
-    return 1;
-  }
+namespace {
 
-  std::string const archivo_config = argv[1];
-  std::string const archivo_escena = argv[2];
-  std::string const archivo_salida = argv[3];
-
-  try {
+  void ejecutar_renderizado(std::string const & archivo_config, std::string const & archivo_escena,
+                            std::string const & archivo_salida) {
     std::println("Starting AOS rendering");
 
     Configuracion config = leer_configuracion(archivo_config);
@@ -29,17 +23,13 @@ int main(int argc, char * argv[]) {
                          static_cast<double>(config.aspect_width));
 
     render::imagen_aos imagen(config.image_width, alto_imagen);
-
     render::geometria geo(config.camera_position, config.camera_target, config.camera_north,
                           config.field_of_view);
 
     render::tamaño_imagen tam(config.image_width, alto_imagen);
-
     render::mersenne_twister mt_rayos(static_cast<unsigned>(config.ray_rng_seed));
     render::mersenne_twister mt_materiales(static_cast<unsigned>(config.material_rng_seed));
-
     render::ventana vent(geo, tam, mt_rayos);
-
     render::trazador_rayos trazador(config, mt_materiales);
     trazador.cargar_escena(archivo_escena);
 
@@ -63,7 +53,24 @@ int main(int argc, char * argv[]) {
 
     imagen.guardar_ppm(archivo_salida);
     std::println("Image generated: {}", archivo_salida);
+  }
 
+}  // namespace
+
+int main(int argc, char * argv[]) {
+  std::span<char *> args(argv, static_cast<size_t>(argc));
+
+  if (argc != 4) {
+    std::println("Error: Invalid number of arguments: {}", argc - 1);
+    return 1;
+  }
+
+  std::string const archivo_config = args[1];
+  std::string const archivo_escena = args[2];
+  std::string const archivo_salida = args[3];
+
+  try {
+    ejecutar_renderizado(archivo_config, archivo_escena, archivo_salida);
   } catch (std::exception const & e) {
     std::cerr << e.what() << "\n";
     return 1;
