@@ -28,143 +28,207 @@ namespace {
 
   void parsear_aspect_ratio(Configuracion & cfg, std::istringstream & iss,
                             contexto_parseo const & ctx) {
-    int w = 0, h = 0;
-    std::string mensaje;
-    std::string extra;
-
+    int w = 0;
+    int h = 0;
     if (!(iss >> w >> h)) {
-      mensaje = "Error: Invalid value for key: [aspect_ratio:]";
-    } else if (w <= 0 and h <= 0) {
-      mensaje = "Error: Non-positive value for key: [aspect_ratio:]";
-    } else if (iss >> extra) {
-      mensaje = "Error: Extra data after configuration value for key: [aspect_ratio:]";
+      std::string msg = "Error: Invalid value for key: [aspect_ratio:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+      throw std::runtime_error(msg);
     }
-
-    if (!mensaje.empty()) {
-      std::string msg = mensaje;
-      if (!extra.empty()) {
-        msg += "\nExtra: \"" + extra + "\"";
-      }
-      msg += "\nLine " + std::to_string(ctx.num_linea) + ": \"" + ctx.linea + "\"";
+    if (w <= 0 or h <= 0) {
+      std::string msg = "Error: Invalid value for key: [aspect_ratio:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
       throw std::runtime_error(msg);
     }
     cfg.aspect_width  = w;
     cfg.aspect_height = h;
+    std::string extra;
+    if (iss >> extra) {
+      std::string msg = "Error: Extra data after configuration value for key: [";
+      msg += "aspect_ratio:";
+      msg += "]\nExtra: \"";
+      msg += extra;
+      msg += "\"\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+
+      throw std::runtime_error(msg);
+    }
   }
 
   void parsear_image_width(Configuracion & cfg, std::istringstream & iss,
                            contexto_parseo const & ctx) {
     int val = 0;
-    std::string mensaje;
-    std::string extra;
-
     if (!(iss >> val)) {
-      mensaje = "Error: Invalid value for key: [image_width:]";
-    } else if (val <= 0) {
-      mensaje = "Error: Non-positive value for key: [image_width:]";
-    } else if (iss >> extra) {
-      mensaje = "Error: Extra data after configuration value for key: [image_width:]";
+      std::string msg = "Error: Invalid value for key: [image_width:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+      throw std::runtime_error(msg);
     }
-    if (!mensaje.empty()) {
-      std::string msg = mensaje;
-      if (!extra.empty()) {
-        msg += "\nExtra: \"" + extra + "\"";
-      }
-      msg += "\nLine " + std::to_string(ctx.num_linea) + ": \"" + ctx.linea + "\"";
+    if (val <= 0) {
+      std::string msg = "Error: Invalid value for key: [image_width:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
       throw std::runtime_error(msg);
     }
     cfg.image_width = val;
+    std::string extra;
+    if (iss >> extra) {
+      std::string msg = "Error: Extra data after configuration value for key: [";
+      msg += "image_width:";
+      msg += "]\nExtra: \"";
+      msg += extra;
+      msg += "\"\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+
+      throw std::runtime_error(msg);
+    }
   }
 
   void parsear_gamma(Configuracion & cfg, std::istringstream & iss, contexto_parseo const & ctx) {
     double g = 0.0;
-    std::string mensaje;
-    std::string extra;
-
     if (!(iss >> g)) {
-      mensaje = "Error: Invalid value for key: [gamma:]";
-    } else if (iss >> extra) {
-      mensaje = "Error: Extra data after configuration value for key: [gamma:]";
-    }
-    if (!mensaje.empty()) {
-      std::string msg = mensaje;
-      if (!extra.empty()) {
-        msg += "\nExtra: \"" + extra + "\"";
-      }
-      msg += "\nLine " + std::to_string(ctx.num_linea) + ": \"" + ctx.linea + "\"";
+      std::string msg = "Error: Invalid value for key: [gamma:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
       throw std::runtime_error(msg);
     }
     cfg.gamma = g;
+    std::string extra;
+    if (iss >> extra) {
+      std::string msg = "Error: Extra data after configuration value for key: [";
+      msg += "gamma:";
+      msg += "]\nExtra: \"";
+      msg += extra;
+      msg += "\"\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+
+      throw std::runtime_error(msg);
+    }
   }
 
   void parsear_vector(render::vector & vec, std::istringstream & iss, std::string const & etiqueta,
                       contexto_parseo const & ctx) {
-    double x = 0.0, y = 0.0, z = 0.0;
-    std::string mensaje;
-    std::string extra;
-
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
     if (!(iss >> x >> y >> z)) {
-      mensaje = "Error: Invalid value for key: [" + etiqueta + "]";
-    } else if (iss >> extra) {
-      mensaje = "Error: Extra data after configuration value for key: [" + etiqueta + "]";
-    }
-    if (!mensaje.empty()) {
-      std::string msg = mensaje;
-      if (!extra.empty()) {
-        msg += "\nExtra: \"" + extra + "\"";
-      }
-      msg += "\nLine " + std::to_string(ctx.num_linea) + ": \"" + ctx.linea + "\"";
+      std::string msg = "Error: Invalid value for key: [";
+      msg += etiqueta;
+      msg += "]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
       throw std::runtime_error(msg);
     }
     vec = {x, y, z};
+    std::string extra;
+    if (iss >> extra) {
+      std::string msg = "Error: Extra data after configuration value for key: [";
+      msg += etiqueta;
+      msg += "]\nExtra: \"";
+      msg += extra;
+      msg += "\"\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+
+      throw std::runtime_error(msg);
+    }
   }
 
   void parsear_field_of_view(Configuracion & cfg, std::istringstream & iss,
                              contexto_parseo const & ctx) {
     double fov = 0.0;
-    std::string mensaje;
-    std::string extra;
-
     if (!(iss >> fov)) {
-      mensaje = "Error: Invalid value for key: [field_of_view:]";
-    } else if (fov <= 0.0 and fov >= 180.0) {
-      mensaje = "Error: Value out of range for key: [field_of_view:]";
-    } else if (iss >> extra) {
-      mensaje = "Error: Extra data after configuration value for key: [field_of_view:]";
+      std::string msg = "Error: Invalid value for key: [field_of_view:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+      throw std::runtime_error(msg);
     }
-    if (!mensaje.empty()) {
-      std::string msg = mensaje;
-      if (!extra.empty()) {
-        msg += "\nExtra: \"" + extra + "\"";
-      }
-      msg += "\nLine " + std::to_string(ctx.num_linea) + ": \"" + ctx.linea + "\"";
+    if (fov <= 0.0 or fov >= 180.0) {
+      std::string msg = "Error: Invalid value for key: [field_of_view:]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
       throw std::runtime_error(msg);
     }
     cfg.field_of_view = fov;
+    std::string extra;
+    if (iss >> extra) {
+      std::string msg = "Error: Extra data after configuration value for key: [";
+      msg += "field_of_view:";
+      msg += "]\nExtra: \"";
+      msg += extra;
+      msg += "\"\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+
+      throw std::runtime_error(msg);
+    }
   }
 
   void parsear_entero(int & val, std::istringstream & iss, std::string const & etiqueta,
                       contexto_parseo const & ctx) {
-    std::string mensaje;
-    std::string extra;
-
     if (!(iss >> val)) {
-      mensaje = "Error: Invalid value for key: [";
-    } else if (val <= 0) {
-      mensaje = "Error: Invalid non-positive value for key: [";
-    } else if (iss >> extra) {
-      mensaje = "Error: Extra data after configuration value for key: [";
-    }
-    if (!mensaje.empty()) {
-      std::string msg = mensaje;
+      std::string msg = "Error: Invalid value for key: [";
       msg += etiqueta;
-      msg += "]";
-      if (!extra.empty()) {
-        msg += "\nExtra: \"" + extra + "\"";
-      }
-      msg += "\nLine ";
+      msg += "]\nLine ";
       msg += std::to_string(ctx.num_linea);
-      msg += ": \"" + ctx.linea + "\"";
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+      throw std::runtime_error(msg);
+    }
+    if (val <= 0) {
+      std::string msg = "Error: Invalid value for key: [";
+      msg += etiqueta;
+      msg += "]\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+      throw std::runtime_error(msg);
+    }
+    std::string extra;
+    if (iss >> extra) {
+      std::string msg = "Error: Extra data after configuration value for key: [";
+      msg += etiqueta;
+      msg += "]\nExtra: \"";
+      msg += extra;
+      msg += "\"\nLine ";
+      msg += std::to_string(ctx.num_linea);
+      msg += ": \"";
+      msg += ctx.linea;
+      msg += "\"";
+
       throw std::runtime_error(msg);
     }
   }
