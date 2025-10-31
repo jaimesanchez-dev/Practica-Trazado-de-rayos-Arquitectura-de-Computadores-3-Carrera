@@ -57,8 +57,10 @@ namespace {
 
 }  // namespace
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) noexcept try
+{
   std::span<char *> const args(argv, static_cast<size_t>(argc));
+
   if (argc != 4) {
     std::println("Error: Invalid number of arguments: {}", argc - 1);
     return 1;
@@ -68,21 +70,21 @@ int main(int argc, char * argv[]) {
   std::string const archivo_escena = args[2];
   std::string const archivo_salida = args[3];
 
-  try {
-    std::println("Starting SOA rendering");
+  std::println("Starting SOA rendering");
 
-    Configuracion const config = leer_configuracion(archivo_config);
+  Configuracion const config = leer_configuracion(archivo_config);
 
-    int const alto_imagen = static_cast<int>(static_cast<double>(config.image_width) *
-                                             static_cast<double>(config.aspect_height) /
-                                             static_cast<double>(config.aspect_width));
+  int const alto_imagen = static_cast<int>(static_cast<double>(config.image_width) *
+                                           static_cast<double>(config.aspect_height) /
+                                           static_cast<double>(config.aspect_width));
 
-    renderizar_imagen(config, alto_imagen, archivo_escena, archivo_salida);
-
-  } catch (std::exception const & e) {
-    std::cerr << e.what() << "\n";
-    return 1;
-  }
-
+  renderizar_imagen(config, alto_imagen, archivo_escena, archivo_salida);
   return 0;
+
+} catch (std::exception const & e) {
+  std::cerr << "Error: " << e.what() << "\n";
+  return 1;
+} catch (...) {
+  std::cerr << "Error: Unknown exception occurred\n";
+  return 1;
 }

@@ -61,7 +61,8 @@ namespace {
 
 }  // namespace
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[]) noexcept try
+{
   std::span<char *> const args(argv, static_cast<size_t>(argc));
 
   if (argc != 4) {
@@ -73,12 +74,13 @@ int main(int argc, char * argv[]) {
   std::string const archivo_escena = args[2];
   std::string const archivo_salida = args[3];
 
-  try {
-    ejecutar_renderizado(archivo_config, archivo_escena, archivo_salida);
-  } catch (std::exception const & e) {
-    std::cerr << e.what() << "\n";
-    return 1;
-  }
-
+  ejecutar_renderizado(archivo_config, archivo_escena, archivo_salida);
   return 0;
+
+} catch (std::exception const & e) {
+  std::cerr << "Error: " << e.what() << "\n";
+  return 1;
+} catch (...) {
+  std::cerr << "Error: Unknown exception occurred\n";
+  return 1;
 }
