@@ -9,7 +9,6 @@
 #include "mersenne_twister.hpp"
 #include "rayo.hpp"
 #include "vector.hpp"
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <memory>
