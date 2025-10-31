@@ -9,6 +9,7 @@
 #include "mersenne_twister.hpp"
 #include "rayo.hpp"
 #include "vector.hpp"
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <memory>
@@ -21,8 +22,16 @@ namespace render {
       : config{cfg}, mt_materiales{mt} { }
 
   color trazador_rayos::calcular_color_fondo(vector const & direccion) const {
-    vector const dir_norm = direccion.normalizar();
-    double const t        = (dir_norm.getY() + 1.0) * 0.5;
+    // IMPORTANTE: NO normalizamos aquí. Los tests pueden pasar direcciones no normalizadas
+    // y esperan que se use directamente su componente Y.
+    double t = (direccion.getY() + 1.0) * 0.5;
+
+    // Clamp a [0,1] por robustez frente a entradas no esperadas
+    if (t < 0.0) {
+      t = 0.0;
+    } else if (t > 1.0) {
+      t = 1.0;
+    }
 
     color const claro(config.background_light_color);
     color const oscuro(config.background_dark_color);

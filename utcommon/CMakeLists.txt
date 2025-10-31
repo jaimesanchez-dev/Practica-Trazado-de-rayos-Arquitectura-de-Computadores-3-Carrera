@@ -11,6 +11,7 @@ set(COMMON_SRC_FILES
   "${CMAKE_SOURCE_DIR}/common/src/lector_archivo_escena.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/escena.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/material.cpp"
+  "${CMAKE_SOURCE_DIR}/common/src/trazador_rayos.cpp"
 )
 
 set(CURRENT_DIR_SRC_FILES 
@@ -26,6 +27,7 @@ set(CURRENT_DIR_SRC_FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/test_lector_archivo_escena.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_escena.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_material.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_trazador_rayos.cpp"
 )
 
 add_unit_test_target(
