@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include "configuracion.hpp"
 #include "escena.hpp"
+#include "interseccion.hpp"
 #include "material.hpp"
 #include "mersenne_twister.hpp"
 #include "rayo.hpp"
@@ -24,6 +25,17 @@ namespace render {
     std::vector<std::string> material_cilindros;
 
     [[nodiscard]] color calcular_color_fondo(vector const & direccion) const;
+
+    [[nodiscard]] std::shared_ptr<material> buscar_material(rayo const & r,
+                                                            interseccion const & inter) const;
+
+    [[nodiscard]] color procesar_material_refractivo(std::shared_ptr<material> const & mat,
+                                                     rayo const & r, interseccion const & inter,
+                                                     int profundidad);
+
+    [[nodiscard]] color procesar_material_no_refractivo(std::shared_ptr<material> const & mat,
+                                                        rayo const & r, interseccion const & inter,
+                                                        int profundidad);
 
   public:
     trazador_rayos(Configuracion const & cfg, mersenne_twister & mt);

@@ -70,6 +70,75 @@ namespace render {
     }
   }
 
+  std::shared_ptr<material> trazador_rayos::buscar_material(rayo const & r,
+                                                            interseccion const & inter) const {
+    auto esferas   = scn.obtener_esferas();
+    auto cilindros = scn.obtener_cilindros();
+
+    constexpr double EPSILON = 1e-6;
+    for (size_t i = 0; i < esferas.size(); ++i) {
+      double t_temp = 0.0;
+      if (esferas[i].interseccion(r, t_temp) and std::abs(t_temp - inter.obtener_t()) < EPSILON) {
+        if (i < material_esferas.size()) {
+          return materiales.at(material_esferas[i]);
+        }
+        break;
+      }
+    }
+
+    for (size_t i = 0; i < cilindros.size(); ++i) {
+      double t_temp = 0.0;
+      if (cilindros[i].interseccion(r, t_temp) and std::abs(t_temp - inter.obtener_t()) < EPSILON) {
+        if (i < material_cilindros.size()) {
+          return materiales.at(material_cilindros[i]);
+        }
+        break;
+      }
+    }
+
+    // Material por defecto
+    constexpr double DEFAULT_REFLECTANCE = 0.5;
+    return std::make_shared<material_mate>(
+        vector(DEFAULT_REFLECTANCE, DEFAULT_REFLECTANCE, DEFAULT_REFLECTANCE));
+  }
+
+  color trazador_rayos::procesar_material_refractivo(std::shared_ptr<material> const & mat,
+                                                     rayo const & r, interseccion const & inter,
+                                                     int profundidad) {
+    auto mat_refractivo = std::dynamic_pointer_cast<material_refractivo>(mat);
+    vector const normal = inter.obtener_normal();
+
+    vector const dir_resultado =
+        mat_refractivo->calcular_direccion_reflexion(r.obtener_direccion(), normal, mt_materiales);
+
+    constexpr double OFFSET = 1e-4;
+    vector punto_origen(0, 0, 0);
+
+    if (dir_resultado.producto_escalar(normal) > 0) {
+      punto_origen = inter.obtener_punto().suma(normal.producto_constante(OFFSET));
+    } else {
+      punto_origen = inter.obtener_punto().resta(normal.producto_constante(OFFSET));
+    }
+
+    rayo const nuevo_rayo(punto_origen, dir_resultado);
+    return trazar_rayo(nuevo_rayo, profundidad - 1);
+  }
+
+  color trazador_rayos::procesar_material_no_refractivo(std::shared_ptr<material> const & mat,
+                                                        rayo const & r, interseccion const & inter,
+                                                        int profundidad) {
+    vector const nueva_dir = mat->calcular_direccion_reflexion(
+        r.obtener_direccion(), inter.obtener_normal(), mt_materiales);
+
+    constexpr double OFFSET = 1e-3;
+    rayo const rayo_reflejado(
+        inter.obtener_punto().suma(inter.obtener_normal().producto_constante(OFFSET)), nueva_dir);
+
+    color const color_reflejado = trazar_rayo(rayo_reflejado, profundidad - 1);
+    vector const refl           = mat->obtener_reflectancia();
+    return color_reflejado.multiplicar(color(refl));
+  }
+
   color trazador_rayos::trazar_rayo(rayo const & r, int profundidad) {
     if (profundidad <= 0) {
       return {0.0, 0.0, 0.0};
@@ -81,93 +150,13 @@ namespace render {
       return calcular_color_fondo(r.obtener_direccion());
     }
 
-    // Determinar qué material usar
-    std::shared_ptr<material> mat;
-    auto esferas   = scn.obtener_esferas();
-    auto cilindros = scn.obtener_cilindros();
+    std::shared_ptr<material> const mat = buscar_material(r, inter);
 
-    // Buscar cuál objeto fue intersectado
-    constexpr double EPSILON = 1e-6;
-    for (size_t i = 0; i < esferas.size(); ++i) {
-      double t_temp = 0.0;
-      if (esferas[i].interseccion(r, t_temp) and std::abs(t_temp - inter.obtener_t()) < EPSILON) {
-        if (i < material_esferas.size()) {
-          mat = materiales[material_esferas[i]];
-        }
-        break;
-      }
-    }
-
-    if (!mat) {
-      for (size_t i = 0; i < cilindros.size(); ++i) {
-        double t_temp = 0.0;
-        if (cilindros[i].interseccion(r, t_temp) and std::abs(t_temp - inter.obtener_t()) < EPSILON)
-        {
-          if (i < material_cilindros.size()) {
-            mat = materiales[material_cilindros[i]];
-          }
-          break;
-        }
-      }
-    }
-
-    if (!mat) {
-      // Material por defecto
-      constexpr double DEFAULT_REFLECTANCE = 0.5;
-      mat                                  = std::make_shared<material_mate>(
-          vector(DEFAULT_REFLECTANCE, DEFAULT_REFLECTANCE, DEFAULT_REFLECTANCE));
-    }
-
-    // Manejar materiales refractivos
-    // Manejar materiales refractivos
     if (mat->obtener_tipo() == tipo_material::REFRACTIVO) {
-      auto mat_refractivo = std::dynamic_pointer_cast<material_refractivo>(mat);
-
-      // La normal de intersección ya apunta hacia afuera del objeto
-      vector const normal = inter.obtener_normal();
-
-      // El método calcular_direccion_reflexion YA maneja todo:
-      // - Determina si entra o sale
-      // - Calcula reflexión total interna si aplica
-      // - Calcula refracción si no hay reflexión total
-      vector const dir_resultado = mat_refractivo->calcular_direccion_reflexion(
-          r.obtener_direccion(), normal, mt_materiales);
-
-      // CLAVE: Aplicar offset basándose en la dirección RESULTANTE
-      constexpr double OFFSET = 1e-4;
-      vector punto_origen(0, 0, 0);
-
-      // Si la dirección resultante apunta en el mismo sentido que la normal (hacia afuera)
-      if (dir_resultado.producto_escalar(normal) > 0) {
-        // Mover el punto hacia afuera
-        punto_origen = inter.obtener_punto().suma(normal.producto_constante(OFFSET));
-      } else {
-        // Mover el punto hacia adentro
-        punto_origen = inter.obtener_punto().resta(normal.producto_constante(OFFSET));
-      }
-
-      rayo const nuevo_rayo(punto_origen, dir_resultado);
-
-      // Según el PDF (sección 3.5.3), la reflectancia de materiales refractivos es (1,1,1)
-      color color_resultado = trazar_rayo(nuevo_rayo, profundidad - 1);
-      return color_resultado;
+      return procesar_material_refractivo(mat, r, inter, profundidad);
     }
 
-    // Para materiales no refractivos (mate y metal)
-    vector const nueva_dir = mat->calcular_direccion_reflexion(
-        r.obtener_direccion(), inter.obtener_normal(), mt_materiales);
-
-    // Crear nuevo rayo con pequeño offset para evitar auto-intersección
-    constexpr double OFFSET = 1e-3;
-    rayo const rayo_reflejado(
-        inter.obtener_punto().suma(inter.obtener_normal().producto_constante(OFFSET)), nueva_dir);
-
-    // Trazar recursivamente
-    color const color_reflejado = trazar_rayo(rayo_reflejado, profundidad - 1);
-
-    // Aplicar reflectancia del material
-    vector const refl = mat->obtener_reflectancia();
-    return color_reflejado.multiplicar(color(refl));
+    return procesar_material_no_refractivo(mat, r, inter, profundidad);
   }
 
 }  // namespace render
