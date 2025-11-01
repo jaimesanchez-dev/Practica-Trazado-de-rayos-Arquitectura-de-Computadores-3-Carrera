@@ -6,7 +6,7 @@
 
 namespace render {
 
-  vector material_mate::calcular_direccion_reflexion(vector const &, vector const & normal,
+  vector material_mate::calcular_direccion_reflexion(vector const &, vector const & normal, bool,
                                                      mersenne_twister & mt) const {
     /* Calculamos coordenadas en el rango [-1, 1] */
     constexpr double SCALE = 2.0;
@@ -32,7 +32,7 @@ namespace render {
   }
 
   vector material_metal::calcular_direccion_reflexion(vector const & dir_incidente,
-                                                      vector const & normal,
+                                                      vector const & normal, bool,
                                                       mersenne_twister & mt) const {
     /* Calculamos la reflexión inicial */
     double const producto             = dir_incidente.producto_escalar(normal);
@@ -59,19 +59,17 @@ namespace render {
 
   vector material_refractivo::calcular_direccion_reflexion(vector const & dir_incidente,
                                                            vector const & normal,
+                                                           bool frente_externo,
                                                            mersenne_twister &) const {
     /* Calculamos el coseno */
     double cos_theta = std::min(-dir_incidente.producto_escalar(normal), 1.0);
     cos_theta        = std::max(cos_theta, 0.0);
 
-    /* Nos aseguramos de si apunta hacia afuera o hacia dentro */
-    bool const direccion_hacia_afuera = dir_incidente.producto_escalar(normal) > 0.0;
-
-    /* Índice de refracción corregido */
-    double const rho_prima = direccion_hacia_afuera ? indice_refraccion : (1.0 / indice_refraccion);
-
     /* Calculamos el seno */
     double const sin_theta = std::sqrt(std::max(0.0, 1.0 - cos_theta * cos_theta));
+
+    /* Determinamos el valor de rho */
+    double const rho_prima = frente_externo ? (1.0 / indice_refraccion) : indice_refraccion;
 
     /* Comprobamos */
     double const lhs = rho_prima * sin_theta;

@@ -25,8 +25,8 @@ namespace {
 TEST(TrazadorRayos_Basico, ProfundidadCeroDevuelveNegro) {
   Configuracion cfg;
 
-  render::color claro(1.0, 1.0, 1.0);
-  render::color oscuro(0.0, 0.0, 0.0);
+  render::color const claro(1.0, 1.0, 1.0);
+  render::color const oscuro(0.0, 0.0, 0.0);
 
   cfg.background_light_color =
       render::vector(claro.obtener_r(), claro.obtener_g(), claro.obtener_b());
@@ -36,10 +36,10 @@ TEST(TrazadorRayos_Basico, ProfundidadCeroDevuelveNegro) {
   mersenne_twister mt(13);
   trazador_rayos trazador(cfg, mt);
 
-  vector dir(0.0, 1.0, 0.0);
-  rayo rayo_origen(vector(0.0, 0.0, 0.0), dir);
+  vector const dir(0.0, 1.0, 0.0);
+  rayo const rayo_origen(vector(0.0, 0.0, 0.0), dir);
 
-  color resultado = trazador.trazar_rayo(rayo_origen, 0);
+  color const resultado = trazador.trazar_rayo(rayo_origen, 0);
   EXPECT_COLOR_NEAR(color(0.0, 0.0, 0.0), resultado);
 }
 
@@ -47,8 +47,8 @@ TEST(TrazadorRayos_Basico, ProfundidadCeroDevuelveNegro) {
 TEST(TrazadorRayos_Basico, ColorFondoArribaAbajoLateral) {
   Configuracion cfg;
 
-  render::color claro(1.0, 1.0, 1.0);
-  render::color oscuro(0.0, 0.0, 0.0);
+  render::color const claro(1.0, 1.0, 1.0);
+  render::color const oscuro(0.0, 0.0, 0.0);
 
   cfg.background_light_color =
       render::vector(claro.obtener_r(), claro.obtener_g(), claro.obtener_b());
@@ -60,22 +60,22 @@ TEST(TrazadorRayos_Basico, ColorFondoArribaAbajoLateral) {
 
   // Dirección hacia arriba: Y = 1 -> t = (1 + 1)/2 = 1 -> oscuro (negro)
   {
-    rayo r_up(vector(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
-    color res_up = trazador.trazar_rayo(r_up, 10);
+    rayo const r_up(vector(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+    color const res_up = trazador.trazar_rayo(r_up, 10);
     EXPECT_COLOR_NEAR(color(0.0, 0.0, 0.0), res_up);
   }
 
   // Dirección hacia abajo: Y = -1 -> t = 0 -> claro (blanco)
   {
-    rayo r_down(vector(0.0, 0.0, 0.0), vector(0.0, -1.0, 0.0));
-    color res_down = trazador.trazar_rayo(r_down, 10);
+    rayo const r_down(vector(0.0, 0.0, 0.0), vector(0.0, -1.0, 0.0));
+    color const res_down = trazador.trazar_rayo(r_down, 10);
     EXPECT_COLOR_NEAR(color(1.0, 1.0, 1.0), res_down);
   }
 
   // Dirección lateral: Y = 0 -> t = 0.5 -> gris medio (0.5)
   {
-    rayo r_side(vector(0.0, 0.0, 0.0), vector(1.0, 0.0, 0.0));
-    color res_side = trazador.trazar_rayo(r_side, 10);
+    rayo const r_side(vector(0.0, 0.0, 0.0), vector(1.0, 0.0, 0.0));
+    color const res_side = trazador.trazar_rayo(r_side, 10);
     EXPECT_COLOR_NEAR(color(0.5, 0.5, 0.5), res_side);
   }
 }
@@ -84,8 +84,8 @@ TEST(TrazadorRayos_Basico, ColorFondoArribaAbajoLateral) {
 TEST(TrazadorRayos_Basico, ColorFondoInterpolacionArbitraria) {
   Configuracion cfg;
 
-  render::color claro(0.0, 0.0, 1.0);   // azul claro
-  render::color oscuro(1.0, 0.0, 0.0);  // rojo oscuro
+  render::color const claro(0.0, 0.0, 1.0);   // azul claro
+  render::color const oscuro(1.0, 0.0, 0.0);  // rojo oscuro
 
   cfg.background_light_color =
       render::vector(claro.obtener_r(), claro.obtener_g(), claro.obtener_b());
@@ -98,9 +98,9 @@ TEST(TrazadorRayos_Basico, ColorFondoInterpolacionArbitraria) {
   // Dirección con Y = 0.5 -> t = 0.75
   // Resultado esperado: (0.75, 0.0, 0.25)
   {
-    vector dir(0.0, 0.5, 0.0);
-    rayo r(vector(0.0, 0.0, 0.0), dir);
-    color res = trazador.trazar_rayo(r, 5);
+    vector const dir(0.0, 0.5, 0.0);
+    rayo const r(vector(0.0, 0.0, 0.0), dir);
+    color const res = trazador.trazar_rayo(r, 5);
     EXPECT_COLOR_NEAR(color(0.75, 0.0, 0.25), res, 1e-6);
   }
 }

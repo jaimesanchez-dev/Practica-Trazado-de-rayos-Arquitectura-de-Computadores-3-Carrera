@@ -21,8 +21,6 @@ namespace render {
       : config{cfg}, mt_materiales{mt} { }
 
   color trazador_rayos::calcular_color_fondo(vector const & direccion) const {
-    // IMPORTANTE: NO normalizamos aquí. Los tests pueden pasar direcciones no normalizadas
-    // y esperan que se use directamente su componente Y.
     double t = (direccion.getY() + 1.0) * 0.5;
 
     // Clamp a [0,1] por robustez frente a entradas no esperadas
@@ -113,11 +111,13 @@ namespace render {
   color trazador_rayos::procesar_material_refractivo(std::shared_ptr<material> const & mat,
                                                      rayo const & r, interseccion const & inter,
                                                      int profundidad) {
-    auto mat_refractivo = std::dynamic_pointer_cast<material_refractivo>(mat);
-    vector const normal = inter.obtener_normal();
+    auto mat_refractivo       = std::dynamic_pointer_cast<material_refractivo>(mat);
+    vector const normal       = inter.obtener_normal();
+    bool const frente_externo = inter.obtener_frente_externo();
 
-    vector const dir_resultado =
-        mat_refractivo->calcular_direccion_reflexion(r.obtener_direccion(), normal, mt_materiales);
+    /* Calcular direcciÃ³n usando frente_externo */
+    vector const dir_resultado = mat_refractivo->calcular_direccion_reflexion(
+        r.obtener_direccion(), normal, frente_externo, mt_materiales);
 
     constexpr double OFFSET = 1e-4;
     vector punto_origen(0, 0, 0);
@@ -135,8 +135,10 @@ namespace render {
   color trazador_rayos::procesar_material_no_refractivo(std::shared_ptr<material> const & mat,
                                                         rayo const & r, interseccion const & inter,
                                                         int profundidad) {
+    bool const frente_externo = inter.obtener_frente_externo();
+
     vector const nueva_dir = mat->calcular_direccion_reflexion(
-        r.obtener_direccion(), inter.obtener_normal(), mt_materiales);
+        r.obtener_direccion(), inter.obtener_normal(), frente_externo, mt_materiales);
 
     constexpr double OFFSET = 1e-3;
     rayo const rayo_reflejado(

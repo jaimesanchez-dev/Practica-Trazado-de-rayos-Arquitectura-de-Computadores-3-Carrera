@@ -41,6 +41,7 @@ namespace render {
     bool hay_interseccion      = false;
     vector punto_interseccion  = vector(0.0, 0.0, 0.0);
     vector normal_interseccion = vector(0.0, 0.0, 0.0);
+    bool frente_externo        = true;  // Por defecto
 
     /* Calculamos qué esfera tiene la intersección más cercana */
     for (auto const & e : esferas) {
@@ -55,7 +56,9 @@ namespace render {
         vector n           = resta.producto_constante(1.0 / e.obtener_radio());
 
         /* Si es necesario, cambiamos el signo */
-        if (r.obtener_direccion().producto_escalar(n) > 0.0) {
+        frente_externo = r.obtener_direccion().producto_escalar(n) < 0.0;
+
+        if (!frente_externo) {
           n = n.producto_constante(-1.0);
         }
 
@@ -64,7 +67,7 @@ namespace render {
       }
     }
 
-    return {hay_interseccion, t_min, punto_interseccion, normal_interseccion};
+    return {hay_interseccion, t_min, punto_interseccion, normal_interseccion, frente_externo};
   }
 
   interseccion escena::interseccion_cilindros(rayo const & r) const {
@@ -72,6 +75,7 @@ namespace render {
     bool hay_interseccion      = false;
     vector punto_interseccion  = vector(0.0, 0.0, 0.0);
     vector normal_interseccion = vector(0.0, 0.0, 0.0);
+    bool frente_externo        = true;  // Por defecto
 
     /* Calculamos qué cilindro tiene la intersección más cercana */
     for (auto const & c : cilindros) {
@@ -91,7 +95,9 @@ namespace render {
         vector n                      = resta1.resta(producto_escalar);
 
         /* Si es necesario, cambiamos el signo */
-        if (r.obtener_direccion().producto_escalar(n) > 0.0) {
+        frente_externo = r.obtener_direccion().producto_escalar(n) < 0.0;
+
+        if (!frente_externo) {
           n = n.producto_constante(-1.0);
         }
 
@@ -100,7 +106,7 @@ namespace render {
       }
     }
 
-    return {hay_interseccion, t_min, punto_interseccion, normal_interseccion};
+    return {hay_interseccion, t_min, punto_interseccion, normal_interseccion, frente_externo};
   }
 
 }  // namespace render

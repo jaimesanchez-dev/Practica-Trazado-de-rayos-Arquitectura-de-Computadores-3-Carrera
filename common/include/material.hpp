@@ -29,6 +29,7 @@ namespace render {
 
     [[nodiscard]] virtual vector calcular_direccion_reflexion(vector const & dir_incidente,
                                                               vector const & normal,
+                                                              bool frente_externo,
                                                               mersenne_twister & mt) const = 0;
   };
 
@@ -44,7 +45,7 @@ namespace render {
     ~material_mate() override                        = default;
 
     [[nodiscard]] vector calcular_direccion_reflexion(vector const & dir_incidente,
-                                                      vector const & normal,
+                                                      vector const & normal, bool frente_externo,
                                                       mersenne_twister & mt) const override;
   };
 
@@ -66,7 +67,7 @@ namespace render {
     [[nodiscard]] double obtener_difusion() const { return difusion; }
 
     [[nodiscard]] vector calcular_direccion_reflexion(vector const & dir_incidente,
-                                                      vector const & normal,
+                                                      vector const & normal, bool frente_externo,
                                                       mersenne_twister & mt) const override;
   };
 
@@ -88,7 +89,7 @@ namespace render {
     [[nodiscard]] double obtener_indice() const { return indice_refraccion; }
 
     [[nodiscard]] vector calcular_direccion_reflexion(vector const & dir_incidente,
-                                                      vector const & normal,
+                                                      vector const & normal, bool frente_externo,
                                                       mersenne_twister & mt) const override;
 
     [[nodiscard]] bool calcular_refraccion(vector const & dir_incidente, vector const & normal,
