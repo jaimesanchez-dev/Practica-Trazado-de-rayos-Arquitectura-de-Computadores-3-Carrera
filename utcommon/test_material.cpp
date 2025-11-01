@@ -28,7 +28,7 @@ TEST(MaterialMateTest, DireccionSiempreNormalizada) {
   vector const normal(0, 1, 0);
 
   for (int i = 0; i < 50; ++i) {
-    vector const dir = mat.calcular_direccion_reflexion(vector(1, 0, 0), normal, mt);
+    vector const dir = mat.calcular_direccion_reflexion(vector(1, 0, 0), normal, true, mt);
     EXPECT_NEAR(dir.magnitude(), 1.0, 1e-9);
   }
 }
@@ -37,7 +37,7 @@ TEST(MaterialMateTest, DireccionNoCasiNula) {
   mersenne_twister mt(13);
   material_mate const mat(vector(0.8, 0.8, 0.8));
   vector const normal(0, 1, 0);
-  vector const dir = mat.calcular_direccion_reflexion(vector(0, 0, 0), normal, mt);
+  vector const dir = mat.calcular_direccion_reflexion(vector(0, 0, 0), normal, true, mt);
   EXPECT_GT(std::fabs(dir.getY()), 1e-3);
 }
 
@@ -51,7 +51,7 @@ TEST(MaterialMetalTest, ReflexionCorrectaSinDifusion) {
 
   vector const incidente(0, -1, 0);  // rayo entra desde arriba
   vector const normal(0, 1, 0);      // plano hacia arriba
-  vector const reflejado = mat.calcular_direccion_reflexion(incidente, normal, mt);
+  vector const reflejado = mat.calcular_direccion_reflexion(incidente, normal, true, mt);
 
   EXPECT_TRUE(approx_equal(reflejado, vector(0, 1, 0)));
 }
@@ -64,8 +64,8 @@ TEST(MaterialMetalTest, ReflexionNormalizadaYDeterminista) {
   vector const incidente(0, -1, 0);
   vector const normal(0, 1, 0);
 
-  vector const r1 = mat.calcular_direccion_reflexion(incidente, normal, mt1);
-  vector const r2 = mat.calcular_direccion_reflexion(incidente, normal, mt2);
+  vector const r1 = mat.calcular_direccion_reflexion(incidente, normal, true, mt1);
+  vector const r2 = mat.calcular_direccion_reflexion(incidente, normal, true, mt2);
 
   EXPECT_NEAR(r1.magnitude(), 1.0, 1e-9);
   EXPECT_TRUE(approx_equal(r1, r2));
@@ -82,7 +82,8 @@ TEST(MaterialRefractivoTest, RefraccionPerpendicularNoDesvia) {
   vector const incidente(0, -1, 0);
   vector const normal(0, 1, 0);
 
-  vector const dir = mat.calcular_direccion_reflexion(incidente, normal, mt);
+  // frente_externo = true porque el rayo entra de aire a material
+  vector const dir = mat.calcular_direccion_reflexion(incidente, normal, true, mt);
   EXPECT_TRUE(approx_equal(dir, vector(0, -1, 0), 1e-6));
 }
 
@@ -90,12 +91,15 @@ TEST(MaterialRefractivoTest, ReflexionTotalInternaSeCumple) {
   mersenne_twister mt(1);
   material_refractivo const mat(1.5);
 
-  // Rayo desde dentro con ángulo alto → reflexión total
   vector const incidente(std::sin(std::numbers::pi / 3), std::cos(std::numbers::pi / 3), 0);
+
   vector const normal(0, -1, 0);
 
-  vector const dir = mat.calcular_direccion_reflexion(incidente, normal, mt);
-  EXPECT_GT(dir.getY(), 0.0);  // refleja hacia dentro
+  vector const dir = mat.calcular_direccion_reflexion(incidente, normal, false, mt);
+
+  EXPECT_LT(dir.getY(), 0.0);  // refleja hacia abajo
+  EXPECT_GT(dir.getX(), 0.0);
+  EXPECT_NEAR(dir.magnitude(), 1.0, 1e-9);
 }
 
 TEST(MaterialRefractivoTest, DireccionSiempreNormalizada) {
@@ -103,7 +107,8 @@ TEST(MaterialRefractivoTest, DireccionSiempreNormalizada) {
   material_refractivo const mat(1.3);
   vector const incidente(0.3, -0.95, 0.0);
   vector const normal(0, 1, 0);
-  vector const dir = mat.calcular_direccion_reflexion(incidente, normal, mt);
+
+  vector const dir = mat.calcular_direccion_reflexion(incidente, normal, true, mt);
   EXPECT_NEAR(dir.magnitude(), 1.0, 1e-9);
 }
 

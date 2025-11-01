@@ -54,7 +54,7 @@ namespace render {
 
     bool altura_valida(vector const & punto, datos_cilindro const & cil) {
       double const altura_punto = punto.resta(cil.base).producto_escalar(cil.eje);
-      return altura_punto >= 0.0 and altura_punto <= cil.altura;
+      return altura_punto >= -cil.altura / 2.0 and altura_punto <= cil.altura / 2.0;
     }
 
     void procesar_solucion(double lambda, rayo const & r, datos_cilindro const & cil,
