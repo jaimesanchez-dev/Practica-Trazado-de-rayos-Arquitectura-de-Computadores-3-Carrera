@@ -9,6 +9,7 @@ namespace render {
   bool cilindro::interseccion(rayo const & r, double & t) const {
     double t_temp = INFINITY;
 
+    // LLAMAMOS A LAS TRES PARTES DE LA INTERSECCIÓN
     interseccion_curva(r, t_temp);
     interseccion_base_superior(r, t_temp);
     interseccion_base_inferior(r, t_temp);
@@ -21,142 +22,106 @@ namespace render {
     return false;
   }
 
-  namespace {
-
-    struct datos_cilindro {
-      vector base;
-      vector eje;
-      double radio;
-      double altura;
-    };
-
-    struct parametros_perpendiculares {
-      vector r_c_perp;
-      vector d_perp;
-    };
-
-    struct coeficientes_cuadratica {
-      double a;
-      double b;
-      double c;
-    };
-
-    parametros_perpendiculares calcular_perpendiculares(vector const & r_c, vector const & r_dir,
-                                                        vector const & eje) {
-      double const r_c_a    = r_c.producto_escalar(eje);
-      vector const r_c_perp = r_c.resta(eje.producto_constante(r_c_a));
-
-      double const d_a    = r_dir.producto_escalar(eje);
-      vector const d_perp = r_dir.resta(eje.producto_constante(d_a));
-
-      return {r_c_perp, d_perp};
-    }
-
-    bool altura_valida(vector const & punto, datos_cilindro const & cil) {
-      double const altura_punto = punto.resta(cil.base).producto_escalar(cil.eje);
-      return altura_punto >= -cil.altura / 2.0 and altura_punto <= cil.altura / 2.0;
-    }
-
-    void procesar_solucion(double lambda, rayo const & r, datos_cilindro const & cil,
-                           double & t_temp) {
-      if (lambda <= 1e-6) {
-        return;
+  bool cilindro::interseccion_curva(
+      rayo const & r, double & t_temp) const {      /* Obtenemos los datos del rayo y el cilindro */
+    vector const r_origen    = r.obtener_origen();  // O_r
+    vector const r_direccion = r.obtener_direccion();  // d_r
+    vector const c_base      = obtener_base();         // B
+    vector const c_eje       = obtener_eje();          // V (normalizado)
+    double const c_radio     = obtener_radio();        // r
+    double const c_altura    = obtener_altura();       // h
+    vector const r_c         = r_origen.resta(c_base);
+    /*Calculo de las perpendiculares*/
+    double const r_c_a             = r_c.producto_escalar(c_eje);
+    vector const r_c_perpendicular = r_c.resta(c_eje.producto_constante(r_c_a));
+    double const d_a               = r_direccion.producto_escalar(c_eje);
+    vector const d_perpendicular   = r_direccion.resta(c_eje.producto_constante(d_a));
+    /*Parametros para la ec de segundo grado*/
+    double const a_curva = d_perpendicular.producto_escalar(d_perpendicular);
+    double const b_curva = 2 * d_perpendicular.producto_escalar(r_c_perpendicular);
+    double const c_curva =
+        r_c_perpendicular.producto_escalar(r_c_perpendicular) - (c_radio * c_radio);
+    double const discriminante_curva = (b_curva * b_curva) - (4 * a_curva * c_curva);
+    if (discriminante_curva >= 0) {
+      double const discriminante_raiz = std::sqrt(discriminante_curva);
+      double const lambda1            = (-b_curva - discriminante_raiz) / (2 * a_curva);
+      double const lambda2            = (-b_curva + discriminante_raiz) / (2 * a_curva);
+      if (lambda1 > 1e-6)
+      { /* Comprobamos si las soluciones están dentro de la altura del cilindro */
+        vector const punto_interseccion = r_origen.suma(r_direccion.producto_constante(lambda1));
+        double const altura_punto       = punto_interseccion.resta(c_base).producto_escalar(c_eje);
+        if (altura_punto >= -c_altura / 2.0 and altura_punto <= c_altura / 2.0) {
+          t_temp = std::min(t_temp, lambda1);
+        }
       }
-
-      vector const punto =
-          r.obtener_origen().suma(r.obtener_direccion().producto_constante(lambda));
-
-      if (altura_valida(punto, cil)) {
-        t_temp = std::min(t_temp, lambda);
+      if (lambda2 > 1e-6) {
+        vector const punto_interseccion = r_origen.suma(r_direccion.producto_constante(lambda2));
+        double const altura_punto       = punto_interseccion.resta(c_base).producto_escalar(c_eje);
+        if (altura_punto >= c_altura / 2.0 and altura_punto <= c_altura / 2.0) {
+          t_temp = std::min(t_temp, lambda2);
+        }
       }
     }
-
-    void resolver_ecuacion_cuadratica(coeficientes_cuadratica const & coef, rayo const & r,
-                                      datos_cilindro const & cil, double & t_temp) {
-      double const discriminante = (coef.b * coef.b) - (4 * coef.a * coef.c);
-      if (discriminante < 0) {
-        return;
-      }
-
-      double const raiz    = std::sqrt(discriminante);
-      double const lambda1 = (-coef.b - raiz) / (2 * coef.a);
-      double const lambda2 = (-coef.b + raiz) / (2 * coef.a);
-
-      procesar_solucion(lambda1, r, cil, t_temp);
-      procesar_solucion(lambda2, r, cil, t_temp);
-    }
-
-  }  // namespace
-
-  bool cilindro::interseccion_curva(rayo const & r, double & t_temp) const {
-    datos_cilindro const cil = {obtener_base(), obtener_eje(), obtener_radio(), obtener_altura()};
-
-    vector const r_c              = r.obtener_origen().resta(cil.base);
-    auto const [r_c_perp, d_perp] = calcular_perpendiculares(r_c, r.obtener_direccion(), cil.eje);
-
-    coeficientes_cuadratica const coef = {
-      d_perp.producto_escalar(d_perp), 2 * d_perp.producto_escalar(r_c_perp),
-      r_c_perp.producto_escalar(r_c_perp) - (cil.radio * cil.radio)};
-
-    resolver_ecuacion_cuadratica(coef, r, cil, t_temp);
-
     return true;
   }
 
-  namespace {
-
-    struct datos_base {
-      vector punto;
-      vector normal;
-      double radio;
-    };
-
-    bool verificar_interseccion_base(rayo const & r, datos_base const & base, double & t_temp) {
-      vector const r_origen = r.obtener_origen();
-      vector const r_dir    = r.obtener_direccion();
-
-      double const denom = r_dir.producto_escalar(base.normal);
-      if (std::abs(denom) <= 1e-8) {
-        return true;
-      }
-
-      double const lambda = base.punto.resta(r_origen).producto_escalar(base.normal) / denom;
-      if (lambda <= 1e-6 or lambda >= t_temp) {
-        return true;
-      }
-
-      vector const interseccion = r_origen.suma(r_dir.producto_constante(lambda));
-      double const distancia    = interseccion.resta(base.punto).magnitude();
-
-      if (distancia <= base.radio) {
-        t_temp = lambda;
-      }
-
-      return true;
-    }
-
-  }  // namespace
-
   bool cilindro::interseccion_base_superior(rayo const & r, double & t_temp) const {
-    vector const c_base   = obtener_base();
+    /*Interseccion con la base superior*/
+
+    vector const r_origen    = r.obtener_origen();
+    vector const r_direccion = r.obtener_direccion();
+
+    vector const c_base   = obtener_base();  // Centro del cilindro
     vector const c_eje    = obtener_eje();
+    double const c_radio  = obtener_radio();
     double const c_altura = obtener_altura();
 
-    datos_base const superior = {c_base.suma(c_eje.producto_constante(c_altura / 2.0)), c_eje,
-                                 obtener_radio()};
+    vector const punto_sup = c_base.suma(c_eje.producto_constante(c_altura / 2.0));  // base arriba
+    double const denom_sup = r_direccion.producto_escalar(c_eje);
 
-    return verificar_interseccion_base(r, superior, t_temp);
+    if (std::abs(denom_sup) > 1e-8) {
+      double const lambda = punto_sup.resta(r_origen).producto_escalar(c_eje) / denom_sup;
+
+      if (lambda > 1e-6 and lambda < t_temp) {
+        vector const I = r_origen.suma(r_direccion.producto_constante(lambda));
+        /* Verificar distancia al centro de la base */
+        double const distancia = I.resta(punto_sup).magnitude();
+        if (distancia <= c_radio) {
+          t_temp = lambda;
+        }
+      }
+    }
+    return true;
   }
 
   bool cilindro::interseccion_base_inferior(rayo const & r, double & t_temp) const {
-    vector const c_base   = obtener_base();
+    /*Interseccion con la base inferior*/
+
+    vector const r_origen    = r.obtener_origen();
+    vector const r_direccion = r.obtener_direccion();
+
+    vector const c_base   = obtener_base();  // Centro del cilindro
     vector const c_eje    = obtener_eje();
+    double const c_radio  = obtener_radio();
     double const c_altura = obtener_altura();
 
-    datos_base const inferior = {c_base.resta(c_eje.producto_constante(c_altura / 2.0)),
-                                 c_eje.producto_constante(-1.0), obtener_radio()};
+    vector const punto_inf = c_base.resta(c_eje.producto_constante(c_altura / 2.0));  // base abajo
+    double const denom_inf = r_direccion.producto_escalar(c_eje.producto_constante(-1.0));
 
-    return verificar_interseccion_base(r, inferior, t_temp);
+    if (std::abs(denom_inf) > 1e-8) {
+      double const lambda =
+          punto_inf.resta(r_origen).producto_escalar(c_eje.producto_constante(-1.0)) / denom_inf;
+
+      if (lambda > 1e-6 and lambda < t_temp) {
+        vector const I = r_origen.suma(r_direccion.producto_constante(lambda));
+        /* Verificar distancia al centro: ||I - P_inf|| ≤ r */
+        double const distancia = I.resta(punto_inf).magnitude();
+        if (distancia <= c_radio) {
+          t_temp = lambda;
+        }
+      }
+    }
+    return true;
   }
 
 }  // namespace render

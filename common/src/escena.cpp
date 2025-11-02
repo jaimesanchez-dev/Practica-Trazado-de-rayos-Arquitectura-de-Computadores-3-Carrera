@@ -92,7 +92,7 @@ namespace render {
         vector const resta1           = I.resta(C);
         double const producto         = resta1.producto_escalar(a);
         vector const producto_escalar = a.producto_constante(producto);
-        vector n                      = resta1.resta(producto_escalar);
+        vector n                      = resta1.resta(producto_escalar).normalizar();
 
         /* Si es necesario, cambiamos el signo */
         frente_externo = r.obtener_direccion().producto_escalar(n) < 0.0;
