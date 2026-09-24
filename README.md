@@ -10,6 +10,14 @@ Jaime Sánchez Sánchez
 Grupo: 81 | ID de Grupo: M81-01
 Universidad: Universidad Carlos III de Madrid (UC3M)
 ---
+
+![Grafico 1](./Imagen%201.png)
+
+![Grafico 2](./Imagen%202.png)
+
+![Grafico 3](./Imagen%203.png)
+
+---
 🏛️ Arquitectura y Diseño por Capas
 El motor se estructuró mediante una arquitectura modular organizada en 8 capas de abstracción:
 Matemáticas y Núcleo Aleatorio:
